@@ -21,7 +21,7 @@ export class Enrollment {
   training: Training;
 
   @CreateDateColumn()
-  enrollDate: Date;
+  date: Date;
 
   @Column({ default: true })
   active: boolean;

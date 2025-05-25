@@ -7,19 +7,19 @@ export class User {
   id: number;
 
   @Column()
-  nome: string;
+  name: string;
 
   @Column()
-  tipoUsuario: TipoUser;
+  userType: TipoUser;
 
   @Column()
-  telefone: string;
+  telephone: string;
 
   @Column({ unique: true })
   email: string;
 
   @Column()
-  senha: string;
+  password: string;
 
   @OneToMany(() => Enrollment, (enrollment  ) => enrollment.user)
   enrollments: Enrollment[];

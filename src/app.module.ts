@@ -8,17 +8,20 @@ import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { Enrollment } from './enrollment/entities/enrollment.entity';
+import { PostModule } from './post/post.module';
+import { Post } from './post/entities/post.entity';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
       type: 'sqlite', // ou 'postgres', 'mysql'...
       database: 'db.sqlite',
-      entities: [Training, User, Enrollment],
+      entities: [Training, User, Enrollment, Post],
       synchronize: true, // ⚠️ Apenas pra desenvolvimento
     }),
     TrainingModule,
     UserModule,
-    EnrollmentModule],
+    EnrollmentModule,
+    PostModule],
   controllers: [AppController],
   providers: [AppService],
 })

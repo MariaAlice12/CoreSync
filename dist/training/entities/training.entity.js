@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Training = void 0;
+const enrollment_entity_1 = require("../../enrollment/entities/enrollment.entity");
 const typeorm_1 = require("typeorm");
 let Training = class Training {
 };
@@ -21,15 +22,39 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Training.prototype, "nome", void 0);
+], Training.prototype, "modality", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Training.prototype, "hour", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Training.prototype, "adress", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Training.prototype, "weekday", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Training.prototype, "descricao", void 0);
+], Training.prototype, "description", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: true }),
     __metadata("design:type", Boolean)
-], Training.prototype, "ativo", void 0);
+], Training.prototype, "atictive", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Training.prototype, "maxStudents", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Training.prototype, "minStudents", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => enrollment_entity_1.Enrollment, (enrollment) => enrollment.training),
+    __metadata("design:type", Array)
+], Training.prototype, "enrollments", void 0);
 exports.Training = Training = __decorate([
     (0, typeorm_1.Entity)()
 ], Training);
