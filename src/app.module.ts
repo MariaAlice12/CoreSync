@@ -10,18 +10,21 @@ import { EnrollmentModule } from './enrollment/enrollment.module';
 import { Enrollment } from './enrollment/entities/enrollment.entity';
 import { PostModule } from './post/post.module';
 import { Post } from './post/entities/post.entity';
+import { TournamentBracketModule } from './tournament-bracket/tournament-bracket.module';
+import { TournamentBracket } from './tournament-bracket/entities/tournament-bracket.entity';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
       type: 'sqlite', // ou 'postgres', 'mysql'...
       database: 'db.sqlite',
-      entities: [Training, User, Enrollment, Post],
+      entities: [Training, User, Enrollment, Post, TournamentBracket],
       synchronize: true, // ⚠️ Apenas pra desenvolvimento
     }),
     TrainingModule,
     UserModule,
     EnrollmentModule,
-    PostModule],
+    PostModule,
+    TournamentBracketModule],
   controllers: [AppController],
   providers: [AppService],
 })
