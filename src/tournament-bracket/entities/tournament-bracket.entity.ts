@@ -9,10 +9,7 @@ export class TournamentBracket {
   @Column()
   name: string;
 
-  @Column({
-    type: 'enum',
-    enum: BracketType,
-  })
+  @Column()
   type: BracketType;
 
   @Column()

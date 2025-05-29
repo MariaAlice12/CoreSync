@@ -22,6 +22,9 @@ let UserService = class UserService {
         this.userRepo = userRepo;
     }
     create(dto) {
+        const newUser = {
+            ...dto
+        };
         const user = this.userRepo.create(dto);
         return this.userRepo.save(user);
     }
@@ -32,7 +35,10 @@ let UserService = class UserService {
         return this.userRepo.findOneBy({ id });
     }
     update(id, dto) {
-        return this.userRepo.update(id, dto);
+        const newUser = {
+            ...dto
+        };
+        return this.userRepo.update(id, newUser);
     }
     remove(id) {
         return this.userRepo.delete(id);

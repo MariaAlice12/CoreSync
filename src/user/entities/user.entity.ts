@@ -26,4 +26,4 @@ export class User {
 
 }
 
-type TipoUser = 'aluno' | 'professor' | 'admin';
+export type TipoUser = 'aluno' | 'professor' | 'admin';

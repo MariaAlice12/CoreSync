@@ -1,5 +1,8 @@
+import { TipoUser } from '../entities/user.entity';
 export declare class CreateUserDto {
-    nome: string;
+    name: string;
     email: string;
-    senha: string;
+    password: string;
+    userType: TipoUser;
+    telephone: string;
 }

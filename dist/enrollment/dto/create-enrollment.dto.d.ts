@@ -1,5 +1,5 @@
 export declare class CreateEnrollmentDto {
-    userId: string;
-    treinoId: string;
-    ativo?: boolean;
+    trainingId: number;
+    userId: number;
+    active: boolean;
 }

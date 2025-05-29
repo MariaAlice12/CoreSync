@@ -1,13 +1,14 @@
-import { IsUUID, IsOptional, IsBoolean } from 'class-validator';
+import { IsUUID, IsBoolean } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateEnrollmentDto {
-  @IsUUID()
-  userId: string;
 
-  @IsUUID()
-  treinoId: string;
+  @ApiProperty({ type: Number })
+  trainingId: number;
 
-  @IsOptional()
-  @IsBoolean()
-  ativo?: boolean;
+  @ApiProperty({ type: Number })
+  userId: number;
+
+  @ApiProperty({ type: Boolean })
+  active: boolean;
 }

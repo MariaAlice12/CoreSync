@@ -13,6 +13,9 @@ constructor(
   ) {}
 
   create(dto: CreateUserDto) {
+    const newUser:Partial<User> = {
+      ...dto
+    }
     const user = this.userRepo.create(dto);
     return this.userRepo.save(user);
   }
@@ -26,7 +29,10 @@ constructor(
   }
 
   update(id: number, dto: UpdateUserDto) {
-    return this.userRepo.update(id, dto);
+     const newUser:Partial<User> = {
+      ...dto
+    }
+    return this.userRepo.update(id, newUser);
   }
 
   remove(id: number) {

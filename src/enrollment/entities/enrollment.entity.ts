@@ -11,8 +11,8 @@ import {
 } from 'typeorm';
 @Entity()
 export class Enrollment {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @ManyToOne(() => User, (user) => user.enrollments, { eager: true })
   user: User;

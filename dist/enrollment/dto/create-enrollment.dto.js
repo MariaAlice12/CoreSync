@@ -10,21 +10,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateEnrollmentDto = void 0;
-const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class CreateEnrollmentDto {
 }
 exports.CreateEnrollmentDto = CreateEnrollmentDto;
 __decorate([
-    (0, class_validator_1.IsUUID)(),
-    __metadata("design:type", String)
+    (0, swagger_1.ApiProperty)({ type: Number }),
+    __metadata("design:type", Number)
+], CreateEnrollmentDto.prototype, "trainingId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: Number }),
+    __metadata("design:type", Number)
 ], CreateEnrollmentDto.prototype, "userId", void 0);
 __decorate([
-    (0, class_validator_1.IsUUID)(),
-    __metadata("design:type", String)
-], CreateEnrollmentDto.prototype, "treinoId", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
+    (0, swagger_1.ApiProperty)({ type: Boolean }),
     __metadata("design:type", Boolean)
-], CreateEnrollmentDto.prototype, "ativo", void 0);
+], CreateEnrollmentDto.prototype, "active", void 0);
 //# sourceMappingURL=create-enrollment.dto.js.map

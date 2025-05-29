@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const training_service_1 = require("./training.service");
 const create_training_dto_1 = require("./dto/create-training.dto");
 const update_training_dto_1 = require("./dto/update-training.dto");
+const swagger_1 = require("@nestjs/swagger");
 let TrainingController = class TrainingController {
     constructor(trainingService) {
         this.trainingService = trainingService;
@@ -40,6 +41,9 @@ let TrainingController = class TrainingController {
 exports.TrainingController = TrainingController;
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Criar novo treino' }),
+    (0, swagger_1.ApiBody)({ type: create_training_dto_1.CreateTrainingDto, }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Treino criado com sucesso' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_training_dto_1.CreateTrainingDto]),
@@ -47,12 +51,18 @@ __decorate([
 ], TrainingController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Listar todos os treinos' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de treinos retornada com sucesso' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], TrainingController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Buscar um treino por ID' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do treino' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Treino encontrado' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Treino não encontrado' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -60,6 +70,10 @@ __decorate([
 ], TrainingController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Atualizar um treino' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do treino' }),
+    (0, swagger_1.ApiBody)({ type: update_training_dto_1.UpdateTrainingDto }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Treino atualizado com sucesso' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -68,12 +82,16 @@ __decorate([
 ], TrainingController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Remover um treino' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do treino' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Treino removido com sucesso' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], TrainingController.prototype, "remove", null);
 exports.TrainingController = TrainingController = __decorate([
+    (0, swagger_1.ApiTags)('Treinos'),
     (0, common_1.Controller)('training'),
     __metadata("design:paramtypes", [training_service_1.TrainingService])
 ], TrainingController);

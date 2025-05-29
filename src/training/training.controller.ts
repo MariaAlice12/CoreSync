@@ -2,32 +2,50 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { TrainingService } from './training.service';
 import { CreateTrainingDto } from './dto/create-training.dto';
 import { UpdateTrainingDto } from './dto/update-training.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 
+@ApiTags('Treinos') // Agrupa esse controller na UI do Swagger
 @Controller('training')
 export class TrainingController {
   constructor(private readonly trainingService: TrainingService) { }
 
   @Post()
+  @ApiOperation({ summary: 'Criar novo treino' })
+  @ApiBody({ type: CreateTrainingDto, })
+  @ApiResponse({ status: 201, description: 'Treino criado com sucesso' })
   create(@Body() createTrainingDto: CreateTrainingDto) {
     return this.trainingService.create(createTrainingDto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Listar todos os treinos' })
+  @ApiResponse({ status: 200, description: 'Lista de treinos retornada com sucesso' })
   findAll() {
     return this.trainingService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar um treino por ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'ID do treino' })
+  @ApiResponse({ status: 200, description: 'Treino encontrado' })
+  @ApiResponse({ status: 404, description: 'Treino não encontrado' })
   findOne(@Param('id') id: string) {
     return this.trainingService.findOne(+id);
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Atualizar um treino' })
+  @ApiParam({ name: 'id', type: Number, description: 'ID do treino' })
+  @ApiBody({ type: UpdateTrainingDto })
+  @ApiResponse({ status: 200, description: 'Treino atualizado com sucesso' })
   update(@Param('id') id: string, @Body() updateTrainingDto: UpdateTrainingDto) {
     return this.trainingService.update(+id, updateTrainingDto);
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Remover um treino' })
+  @ApiParam({ name: 'id', type: Number, description: 'ID do treino' })
+  @ApiResponse({ status: 200, description: 'Treino removido com sucesso' })
   remove(@Param('id') id: string) {
     return this.trainingService.remove(+id);
   }

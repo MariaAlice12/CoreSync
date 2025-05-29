@@ -20,6 +20,7 @@ exports.TrainingModule = TrainingModule = __decorate([
         imports: [typeorm_1.TypeOrmModule.forFeature([training_entity_1.Training])],
         controllers: [training_controller_1.TrainingController],
         providers: [training_service_1.TrainingService],
+        exports: [training_service_1.TrainingService],
     })
 ], TrainingModule);
 //# sourceMappingURL=training.module.js.map

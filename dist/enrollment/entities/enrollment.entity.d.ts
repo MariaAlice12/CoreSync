@@ -1,9 +1,9 @@
 import { Training } from 'src/training/entities/training.entity';
 import { User } from 'src/user/entities/user.entity';
 export declare class Enrollment {
-    id: string;
+    id: number;
     user: User;
     training: Training;
-    enrollDate: Date;
+    date: Date;
     active: boolean;
 }
