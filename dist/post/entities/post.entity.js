@@ -17,16 +17,12 @@ let Post = class Post {
 exports.Post = Post;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
-    __metadata("design:type", String)
+    __metadata("design:type", Number)
 ], Post.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.enrollments, { eager: true }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.posts),
     __metadata("design:type", user_entity_1.User)
 ], Post.prototype, "user", void 0);
-__decorate([
-    (0, typeorm_1.CreateDateColumn)(),
-    __metadata("design:type", Date)
-], Post.prototype, "date", void 0);
 __decorate([
     (0, typeorm_1.Column)({}),
     __metadata("design:type", String)
@@ -35,6 +31,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Post.prototype, "image", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Post.prototype, "date", void 0);
 exports.Post = Post = __decorate([
     (0, typeorm_1.Entity)()
 ], Post);

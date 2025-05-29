@@ -1,4 +1,5 @@
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
+import { Post } from 'src/post/entities/post.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
@@ -23,6 +24,9 @@ export class User {
 
   @OneToMany(() => Enrollment, (enrollment  ) => enrollment.user)
   enrollments: Enrollment[];
+
+  @OneToMany(() => Post, (post) => post.user)
+  posts: Post[]
 
 }
 

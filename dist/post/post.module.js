@@ -10,13 +10,17 @@ exports.PostModule = void 0;
 const common_1 = require("@nestjs/common");
 const post_service_1 = require("./post.service");
 const post_controller_1 = require("./post.controller");
+const typeorm_1 = require("@nestjs/typeorm");
+const post_entity_1 = require("./entities/post.entity");
 let PostModule = class PostModule {
 };
 exports.PostModule = PostModule;
 exports.PostModule = PostModule = __decorate([
     (0, common_1.Module)({
+        imports: [typeorm_1.TypeOrmModule.forFeature([post_entity_1.Post])],
         controllers: [post_controller_1.PostController],
         providers: [post_service_1.PostService],
+        exports: [post_service_1.PostService],
     })
 ], PostModule);
 //# sourceMappingURL=post.module.js.map

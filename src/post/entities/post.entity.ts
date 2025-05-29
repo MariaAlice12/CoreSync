@@ -3,7 +3,7 @@
 import { User } from 'src/user/entities/user.entity';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn, 
   ManyToOne,
   Column,
   CreateDateColumn,
@@ -11,18 +11,18 @@ import {
 @Entity()
 export class Post {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: number;
 
-  @ManyToOne(() => User, (user) => user.enrollments, { eager: true })
+  @ManyToOne(() => User, (user) => user.posts)
   user: User;
-
-  @CreateDateColumn()
-  date: Date;
 
   @Column({ })
   description: string;
   
   @Column({ nullable: true })
   image: string;
+
+  @CreateDateColumn()
+  date: Date;
   
 }
