@@ -10,11 +10,14 @@ import {
 } from 'typeorm';
 @Entity()
 export class Post {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id: number;
 
   @ManyToOne(() => User, (user) => user.posts)
   user: User;
+
+  @Column({ })
+  title: string;
 
   @Column({ })
   description: string;

@@ -19,6 +19,10 @@ exports.UpdatePostDto = UpdatePostDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ type: String }),
     __metadata("design:type", String)
+], UpdatePostDto.prototype, "title", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: String }),
+    __metadata("design:type", String)
 ], UpdatePostDto.prototype, "description", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: String }),

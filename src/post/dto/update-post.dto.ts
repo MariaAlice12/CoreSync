@@ -5,6 +5,9 @@ import { ApiProperty } from '@nestjs/swagger';
 export class UpdatePostDto extends PartialType(CreatePostDto) {
 
     @ApiProperty({ type: String })
+    title: string;
+
+    @ApiProperty({ type: String })
     description: string;
 
     @ApiProperty({ type: String })

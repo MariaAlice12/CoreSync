@@ -16,13 +16,17 @@ let Post = class Post {
 };
 exports.Post = Post;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
 ], Post.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.posts),
     __metadata("design:type", user_entity_1.User)
 ], Post.prototype, "user", void 0);
+__decorate([
+    (0, typeorm_1.Column)({}),
+    __metadata("design:type", String)
+], Post.prototype, "title", void 0);
 __decorate([
     (0, typeorm_1.Column)({}),
     __metadata("design:type", String)
