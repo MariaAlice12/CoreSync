@@ -8,7 +8,9 @@ import { UserModule } from 'src/user/user.module';
 import { TrainingModule } from 'src/training/training.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Enrollment]),UserModule,TrainingModule],
+  imports: [TypeOrmModule.forFeature([Enrollment]),
+  UserModule,
+  TrainingModule],
   controllers: [EnrollmentController],
   providers: [EnrollmentService],
 })
