@@ -8,6 +8,7 @@ import {
   ManyToOne,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 @Entity()
 export class Enrollment {
@@ -25,4 +26,10 @@ export class Enrollment {
 
   @Column({ default: true })
   active: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

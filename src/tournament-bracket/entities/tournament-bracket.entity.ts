@@ -9,7 +9,10 @@ export class TournamentBracket {
   @Column()
   name: string;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: BracketType,
+  })
   type: BracketType;
 
   @Column()
@@ -20,4 +23,5 @@ export class TournamentBracket {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
 }

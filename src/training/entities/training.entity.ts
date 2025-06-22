@@ -1,7 +1,8 @@
 // src/treino/entities/treino.entity.ts
 
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, UpdateDateColumn, CreateDateColumn } from 'typeorm';
+
 
 @Entity()
 export class Training {
@@ -35,5 +36,10 @@ export class Training {
   @OneToMany(() => Enrollment, (enrollment) => enrollment.training)
   enrollments: Enrollment[];
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
 }

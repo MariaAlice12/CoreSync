@@ -8,22 +8,26 @@ import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { Enrollment } from './enrollment/entities/enrollment.entity';
-import { PostModule } from './post/post.module';
-import { Post } from './post/entities/post.entity';
+import { EventModule } from './event/event.module';
+import { Event } from './event/entities/event.entity';
 import { TournamentBracketModule } from './tournament-bracket/tournament-bracket.module';
 import { TournamentBracket } from './tournament-bracket/entities/tournament-bracket.entity';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
-      type: 'sqlite', // ou 'postgres', 'mysql'...
-      database: 'db.sqlite',
-      entities: [Training, User, Enrollment, Post, TournamentBracket],
+      type: 'mysql', // ou 'postgres', 'mysql'...
+      host: 'localhost',
+      port: 3306,
+      database: 'db',
+      username: 'root',
+      password: 'root',
+      entities: [Training, User, Enrollment, Event, TournamentBracket],
       synchronize: true, // ⚠️ Apenas pra desenvolvimento
     }),
     TrainingModule,
     UserModule,
     EnrollmentModule,
-    PostModule,
+    EventModule,
     TournamentBracketModule],
   controllers: [AppController],
   providers: [AppService],

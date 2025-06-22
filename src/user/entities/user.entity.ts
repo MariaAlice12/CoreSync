@@ -1,6 +1,6 @@
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
-import { Post } from 'src/post/entities/post.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Event } from 'src/event/entities/event.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -22,11 +22,17 @@ export class User {
   @Column()
   password: string;
 
-  @OneToMany(() => Enrollment, (enrollment  ) => enrollment.user)
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
   enrollments: Enrollment[];
 
-  @OneToMany(() => Post, (post) => post.user)
-  posts: Post[]
+  @OneToMany(() => Event, (event) => event.user)
+  events: Event[]
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
 }
 
