@@ -13,8 +13,8 @@ export class UpdateEventDto extends PartialType(CreateEventDto) {
     @ApiProperty({ type: String })
     image: string;
 
-    @ApiProperty({ type: String })
-    date: string;
+    @ApiProperty({ type: Date })
+    date: Date;
 
     @ApiProperty({ type: String })
     hour: string;

@@ -28,7 +28,8 @@ import { TournamentBracket } from './tournament-bracket/entities/tournament-brac
     UserModule,
     EnrollmentModule,
     EventModule,
-    TournamentBracketModule],
+    TournamentBracketModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

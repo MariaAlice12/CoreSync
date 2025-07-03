@@ -21,7 +21,6 @@ export class EventController {
   @Get()
   @ApiOperation({ summary: 'Listar todos os eventos' })
   @ApiResponse({ status: 200, description: 'Lista de eventos retornada com sucesso' })
-  @Get()
   findAll() {
     return this.eventService.findAll();
   }

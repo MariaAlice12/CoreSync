@@ -29,7 +29,7 @@ export class Event {
   @Column({ nullable: true })
   image: string;
 
-  @Column()
+  @Column({ nullable: true }) 
   date: Date;
 
   @ManyToOne(() => TournamentBracket, {nullable: true, cascade: true, eager: true})

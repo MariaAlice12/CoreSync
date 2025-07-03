@@ -19,5 +19,5 @@ export class CreateTournamentBracketDto {
   @ApiProperty({ type: Number })
   @IsInt()
   @Min(2)
-  teamCount: number;
+  teamCount: number; 
 }
