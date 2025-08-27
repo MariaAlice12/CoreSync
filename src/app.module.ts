@@ -12,6 +12,8 @@ import { EventModule } from './event/event.module';
 import { Event } from './event/entities/event.entity';
 import { TournamentBracketModule } from './tournament-bracket/tournament-bracket.module';
 import { TournamentBracket } from './tournament-bracket/entities/tournament-bracket.entity';
+import { StravaModule } from './strava/strava.module';
+import { Strava } from './strava/entities/strava.entity';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -21,7 +23,7 @@ import { TournamentBracket } from './tournament-bracket/entities/tournament-brac
       database: 'db',
       username: 'root',
       password: 'root',
-      entities: [Training, User, Enrollment, Event, TournamentBracket],
+      entities: [Training, User, Enrollment, Event, TournamentBracket, Strava],
       synchronize: true, // ⚠️ Apenas pra desenvolvimento
     }),
     TrainingModule,
@@ -29,6 +31,7 @@ import { TournamentBracket } from './tournament-bracket/entities/tournament-brac
     EnrollmentModule,
     EventModule,
     TournamentBracketModule,
+    StravaModule
   ],
   controllers: [AppController],
   providers: [AppService],

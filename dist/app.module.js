@@ -21,6 +21,8 @@ const event_module_1 = require("./event/event.module");
 const event_entity_1 = require("./event/entities/event.entity");
 const tournament_bracket_module_1 = require("./tournament-bracket/tournament-bracket.module");
 const tournament_bracket_entity_1 = require("./tournament-bracket/entities/tournament-bracket.entity");
+const strava_module_1 = require("./strava/strava.module");
+const strava_entity_1 = require("./strava/entities/strava.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,7 +35,7 @@ exports.AppModule = AppModule = __decorate([
                 database: 'db',
                 username: 'root',
                 password: 'root',
-                entities: [training_entity_1.Training, user_entity_1.User, enrollment_entity_1.Enrollment, event_entity_1.Event, tournament_bracket_entity_1.TournamentBracket],
+                entities: [training_entity_1.Training, user_entity_1.User, enrollment_entity_1.Enrollment, event_entity_1.Event, tournament_bracket_entity_1.TournamentBracket, strava_entity_1.Strava],
                 synchronize: true,
             }),
             training_module_1.TrainingModule,
@@ -41,6 +43,7 @@ exports.AppModule = AppModule = __decorate([
             enrollment_module_1.EnrollmentModule,
             event_module_1.EventModule,
             tournament_bracket_module_1.TournamentBracketModule,
+            strava_module_1.StravaModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
