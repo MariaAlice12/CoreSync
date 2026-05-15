@@ -32,9 +32,9 @@ __decorate([
     __metadata("design:type", String)
 ], Training.prototype, "address", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Training.prototype, "weekday", void 0);
+    (0, typeorm_1.Column)({ type: 'simple-array' }),
+    __metadata("design:type", Array)
+], Training.prototype, "weekdays", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)

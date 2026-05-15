@@ -4,7 +4,7 @@ export declare class Training {
     modality: string;
     hour: string;
     address: string;
-    weekday: string;
+    weekdays: string[];
     description: string;
     active: boolean;
     maxStudents: number;

@@ -22,8 +22,8 @@ export class Training {
   @Column()
   address: string;
 
-  @Column()
-  weekday: string;
+  @Column({ type: 'simple-array' })
+  weekdays: string[];
 
   @Column({ nullable: true })
   description: string;

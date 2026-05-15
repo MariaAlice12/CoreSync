@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
   IsBoolean,
   IsInt,
   IsNotEmpty,
@@ -24,10 +25,10 @@ export class CreateTrainingDto {
   @IsNotEmpty()
   address: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  @IsNotEmpty()
-  weekday: string;
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  @IsString({ each: true })
+  weekdays: string[];
 
   @ApiProperty({ type: String, required: false })
   @IsString()

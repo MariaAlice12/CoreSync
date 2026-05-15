@@ -34,11 +34,11 @@ __decorate([
     __metadata("design:type", String)
 ], CreateTrainingDto.prototype, "address", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: String }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateTrainingDto.prototype, "weekday", void 0);
+    (0, swagger_1.ApiProperty)({ type: [String] }),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateTrainingDto.prototype, "weekdays", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: String, required: false }),
     (0, class_validator_1.IsString)(),
