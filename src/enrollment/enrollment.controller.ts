@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { EnrollmentService } from './enrollment.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
@@ -17,13 +18,17 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('Matrículas')
 @Controller('enrollment')
 export class EnrollmentController {
   constructor(private readonly enrollmentService: EnrollmentService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Criar nova matrícula' })
   @ApiBody({ type: CreateEnrollmentDto })
@@ -51,6 +56,8 @@ export class EnrollmentController {
     return this.enrollmentService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Patch(':id')
   @ApiOperation({ summary: 'Atualizar uma matrícula' })
   @ApiParam({ name: 'id', type: Number, description: 'ID da matrícula' })
@@ -63,6 +70,8 @@ export class EnrollmentController {
     return this.enrollmentService.update(id, updateEnrollmentDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   @ApiOperation({ summary: 'Remover uma matrícula' })
   @ApiParam({ name: 'id', type: Number, description: 'ID da matrícula' })

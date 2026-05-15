@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
+const auth_module_1 = require("./auth/auth.module");
 const training_module_1 = require("./training/training.module");
 const typeorm_1 = require("@nestjs/typeorm");
 const training_entity_1 = require("./training/entities/training.entity");
@@ -31,6 +32,7 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
+            auth_module_1.AuthModule,
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'mysql',
                 host: process.env.DB_HOST || 'localhost',

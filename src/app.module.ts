@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { TrainingModule } from './training/training.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Training } from './training/entities/training.entity';
@@ -19,6 +20,7 @@ import { Strava } from './strava/entities/strava.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST || 'localhost',

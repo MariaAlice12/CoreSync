@@ -18,6 +18,7 @@ const event_service_1 = require("./event.service");
 const create_event_dto_1 = require("./dto/create-event.dto");
 const update_event_dto_1 = require("./dto/update-event.dto");
 const swagger_1 = require("@nestjs/swagger");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let EventController = class EventController {
     constructor(eventService) {
         this.eventService = eventService;
@@ -40,6 +41,8 @@ let EventController = class EventController {
 };
 exports.EventController = EventController;
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Criar novo evento' }),
     (0, swagger_1.ApiBody)({ type: create_event_dto_1.CreateEventDto }),
@@ -72,6 +75,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], EventController.prototype, "findOne", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Atualizar um evento' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do evento' }),
@@ -84,6 +89,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], EventController.prototype, "update", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Delete)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Remover um evento' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do evento' }),

@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { TrainingService } from './training.service';
 import { CreateTrainingDto } from './dto/create-training.dto';
@@ -17,13 +18,17 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('Treinos')
 @Controller('training')
 export class TrainingController {
   constructor(private readonly trainingService: TrainingService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Criar novo treino' })
   @ApiBody({ type: CreateTrainingDto })
@@ -51,6 +56,8 @@ export class TrainingController {
     return this.trainingService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Patch(':id')
   @ApiOperation({ summary: 'Atualizar um treino' })
   @ApiParam({ name: 'id', type: Number, description: 'ID do treino' })
@@ -63,6 +70,8 @@ export class TrainingController {
     return this.trainingService.update(id, updateTrainingDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   @ApiOperation({ summary: 'Remover um treino' })
   @ApiParam({ name: 'id', type: Number, description: 'ID do treino' })

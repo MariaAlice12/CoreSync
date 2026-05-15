@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -17,13 +18,17 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('Eventos')
 @Controller('event')
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Criar novo evento' })
   @ApiBody({ type: CreateEventDto })
@@ -51,6 +56,8 @@ export class EventController {
     return this.eventService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Patch(':id')
   @ApiOperation({ summary: 'Atualizar um evento' })
   @ApiParam({ name: 'id', type: Number, description: 'ID do evento' })
@@ -63,6 +70,8 @@ export class EventController {
     return this.eventService.update(id, updateEventDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   @ApiOperation({ summary: 'Remover um evento' })
   @ApiParam({ name: 'id', type: Number, description: 'ID do evento' })

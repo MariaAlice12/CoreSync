@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { Event } from 'src/event/entities/event.entity';
 import {
@@ -26,6 +27,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Exclude()
   @Column()
   password: string;
 

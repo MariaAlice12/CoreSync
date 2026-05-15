@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const user_service_1 = require("./user.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_dto_1 = require("./dto/update-user.dto");
@@ -50,6 +51,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "create", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Listar todos os usuários' }),
     (0, swagger_1.ApiResponse)({
@@ -61,6 +64,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Buscar um usuário por ID' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do usuário' }),
@@ -72,6 +77,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "findOne", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Atualizar um usuário' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do usuário' }),
@@ -84,6 +91,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "update", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Delete)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Remover um usuário' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do usuário' }),

@@ -18,6 +18,7 @@ const training_service_1 = require("./training.service");
 const create_training_dto_1 = require("./dto/create-training.dto");
 const update_training_dto_1 = require("./dto/update-training.dto");
 const swagger_1 = require("@nestjs/swagger");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let TrainingController = class TrainingController {
     constructor(trainingService) {
         this.trainingService = trainingService;
@@ -40,6 +41,8 @@ let TrainingController = class TrainingController {
 };
 exports.TrainingController = TrainingController;
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Criar novo treino' }),
     (0, swagger_1.ApiBody)({ type: create_training_dto_1.CreateTrainingDto }),
@@ -72,6 +75,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TrainingController.prototype, "findOne", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Atualizar um treino' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do treino' }),
@@ -84,6 +89,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TrainingController.prototype, "update", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Delete)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Remover um treino' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do treino' }),

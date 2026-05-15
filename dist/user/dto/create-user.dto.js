@@ -31,10 +31,13 @@ __decorate([
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "password", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: String }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsIn)(['aluno', 'professor', 'admin']),
+    (0, swagger_1.ApiProperty)({ type: String, enum: ['aluno', 'professor', 'admin'] }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "userType", void 0);
 __decorate([
+    (0, class_validator_1.IsNotEmpty)(),
     (0, swagger_1.ApiProperty)({ type: String }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "telephone", void 0);
