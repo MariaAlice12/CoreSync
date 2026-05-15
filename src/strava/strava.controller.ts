@@ -12,19 +12,19 @@ export class StravaController {
 
   @Get('sync')
   @ApiOperation({ summary: 'Sincronizar últimas atividades do Strava' })
-  @ApiQuery({ 
-    name: 'perPage', 
-    required: false, 
-    type: Number, 
-    description: 'Quantidade de atividades para sincronizar' 
+  @ApiQuery({
+    name: 'perPage',
+    required: false,
+    type: Number,
+    description: 'Quantidade de atividades para sincronizar',
   })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Atividades sincronizadas', 
-    type: [CreateStravaDto] 
+  @ApiResponse({
+    status: 200,
+    description: 'Atividades sincronizadas',
+    type: [CreateStravaDto],
   })
   async syncActivities(
-    @Query('perPage') perPage: number
+    @Query('perPage') perPage: number,
   ): Promise<CreateStravaDto[]> {
     const activities = await this.stravaService.syncActivities(perPage || 5);
 
@@ -34,10 +34,10 @@ export class StravaController {
 
   @Get()
   @ApiOperation({ summary: 'Listar todas as atividades do Strava' })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Lista de atividades', 
-    type: [CreateStravaDto] 
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de atividades',
+    type: [CreateStravaDto],
   })
   async findAll(): Promise<CreateStravaDto[]> {
     const activities = await this.stravaService.findAll();

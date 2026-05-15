@@ -23,30 +23,31 @@ let EventService = class EventService {
         this.eventRepo = eventRepo;
         this.bracketRepository = bracketRepository;
     }
-    async createEvent(dto) {
+    async create(dto) {
         const event = this.eventRepo.create(dto);
         if (dto.bracketGenerated) {
-            const bracket = new tournament_bracket_entity_1.TournamentBracket();
-            bracket.name = `${dto.title} - Bracket`;
-            const savedBracket = await this.bracketRepository.save(bracket);
-            event.tournamentBracket = savedBracket;
+            const bracket = this.bracketRepository.create({
+                name: `${dto.title} - Bracket`,
+            });
+            event.tournamentBracket = await this.bracketRepository.save(bracket);
         }
-        return this.eventRepo.save(event);
-    }
-    create(dto) {
-        const event = this.eventRepo.create(dto);
         return this.eventRepo.save(event);
     }
     findAll() {
         return this.eventRepo.find();
     }
-    findOne(id) {
-        return this.eventRepo.findOneBy({ id });
+    async findOne(id) {
+        const event = await this.eventRepo.findOneBy({ id });
+        if (!event)
+            throw new common_1.NotFoundException(`Evento #${id} não encontrado`);
+        return event;
     }
-    update(id, dto) {
+    async update(id, dto) {
+        await this.findOne(id);
         return this.eventRepo.update(id, dto);
     }
-    remove(id) {
+    async remove(id) {
+        await this.findOne(id);
         return this.eventRepo.delete(id);
     }
 };

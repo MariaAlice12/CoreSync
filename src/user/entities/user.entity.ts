@@ -1,6 +1,13 @@
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { Event } from 'src/event/entities/event.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -26,14 +33,13 @@ export class User {
   enrollments: Enrollment[];
 
   @OneToMany(() => Event, (event) => event.user)
-  events: Event[]
+  events: Event[];
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
 }
 
 export type TipoUser = 'aluno' | 'professor' | 'admin';

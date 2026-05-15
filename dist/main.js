@@ -7,14 +7,13 @@ const swagger_1 = require("@nestjs/swagger");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const config = new swagger_1.DocumentBuilder()
-        .setTitle('Exemplo de API')
-        .setDescription('Documentação da API com Swagger')
+        .setTitle('CodeSync API')
+        .setDescription('Documentação da API do CodeSync')
         .setVersion('1.0')
-        .addTag('exemplo')
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api', app, document);
-    app.useGlobalPipes(new common_1.ValidationPipe());
+    app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
     await app.listen(3000);
 }
 bootstrap();

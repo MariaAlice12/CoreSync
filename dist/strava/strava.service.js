@@ -24,10 +24,10 @@ let StravaService = class StravaService {
         this.httpService = httpService;
         this.activityRepo = activityRepo;
         this.baseUrl = 'https://www.strava.com/api/v3';
-        this.accessToken = process.env.STRAVA_ACCESS_TOKEN;
-        this.refreshToken = process.env.STRAVA_REFRESH_TOKEN;
-        this.clientId = process.env.STRAVA_CLIENT_ID;
-        this.clientSecret = process.env.STRAVA_CLIENT_SECRET;
+        this.accessToken = process.env.STRAVA_ACCESS_TOKEN ?? '';
+        this.refreshToken = process.env.STRAVA_REFRESH_TOKEN ?? '';
+        this.clientId = process.env.STRAVA_CLIENT_ID ?? '';
+        this.clientSecret = process.env.STRAVA_CLIENT_SECRET ?? '';
         this.expiresAt = Number(process.env.STRAVA_EXPIRES_AT) || 0;
     }
     async ensureAccessToken() {
@@ -42,7 +42,6 @@ let StravaService = class StravaService {
             this.accessToken = response.data.access_token;
             this.refreshToken = response.data.refresh_token;
             this.expiresAt = response.data.expires_at;
-            console.log('Novo access token:', this.accessToken);
         }
         return this.accessToken;
     }
@@ -51,15 +50,14 @@ let StravaService = class StravaService {
     }
     async syncActivities(perPage = 5) {
         const token = await this.ensureAccessToken();
-        const response = await (0, rxjs_1.firstValueFrom)(this.httpService.get(`${this.baseUrl}/athlete/activities?per_page=${perPage}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        }));
-        const activities = response.data;
-        for (const act of activities) {
-            const exists = await this.activityRepo.findOne({ where: { stravaId: act.id } });
+        const response = await (0, rxjs_1.firstValueFrom)(this.httpService.get(`${this.baseUrl}/athlete/activities?per_page=${perPage}`, { headers: { Authorization: `Bearer ${token}` } }));
+        for (const act of response.data) {
+            const exists = await this.activityRepo.findOne({
+                where: { stravaId: act.id.toString() },
+            });
             if (!exists) {
                 const dto = {
-                    stravaId: act.id,
+                    stravaId: act.id.toString(),
                     name: act.name,
                     distance: act.distance,
                     movingTime: act.moving_time,

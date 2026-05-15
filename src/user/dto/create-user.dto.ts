@@ -20,5 +20,4 @@ export class CreateUserDto {
 
   @ApiProperty({ type: String })
   telephone: string;
-
 }

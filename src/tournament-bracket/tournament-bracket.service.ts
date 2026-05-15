@@ -1,37 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { TournamentBracket } from './entities/tournament-bracket.entity';
 import { CreateTournamentBracketDto } from './dto/create-tournament-bracket.dto';
 import { UpdateTournamentBracketDto } from './dto/update-tournament-bracket.dto';
 
 @Injectable()
 export class TournamentBracketService {
-  private brackets = [];
-  private idCounter = 1;
+  constructor(
+    @InjectRepository(TournamentBracket)
+    private readonly bracketRepo: Repository<TournamentBracket>,
+  ) {}
 
   create(dto: CreateTournamentBracketDto) {
-    const newBracket = { id: this.idCounter++, ...dto };
-    this.brackets.push(newBracket);
-    return newBracket;
+    const bracket = this.bracketRepo.create(dto);
+    return this.bracketRepo.save(bracket);
   }
 
   findAll() {
-    return this.brackets;
+    return this.bracketRepo.find();
   }
 
-  findOne(id: number) {
-    return this.brackets.find(b => b.id === id);
+  async findOne(id: string) {
+    const bracket = await this.bracketRepo.findOneBy({ id });
+    if (!bracket) throw new NotFoundException(`Chave #${id} não encontrada`);
+    return bracket;
   }
 
-  update(id: number, dto: UpdateTournamentBracketDto) {
-    const index = this.brackets.findIndex(b => b.id === id);
-    if (index === -1) return null;
-    this.brackets[index] = { ...this.brackets[index], ...dto };
-    return this.brackets[index];
+  async update(id: string, dto: UpdateTournamentBracketDto) {
+    await this.findOne(id);
+    return this.bracketRepo.update(id, dto);
   }
 
-  remove(id: number) {
-    const index = this.brackets.findIndex(b => b.id === id);
-    if (index === -1) return null;
-    const deleted = this.brackets.splice(index, 1);
-    return deleted[0];
+  async remove(id: string) {
+    await this.findOne(id);
+    return this.bracketRepo.delete(id);
   }
 }

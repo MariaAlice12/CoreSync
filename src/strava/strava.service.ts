@@ -1,4 +1,3 @@
-// src/strava/strava.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,7 +5,20 @@ import { Strava } from './entities/strava.entity';
 import { CreateStravaDto } from './dto/create-strava.dto';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { AxiosResponse } from 'axios';
+
+interface StravaActivityData {
+  id: number; // Strava returns numeric IDs; stored as string to handle large values
+  name: string;
+  distance: number;
+  moving_time: number;
+  elapsed_time: number;
+  total_elevation_gain: number;
+  type: string;
+  sport_type: string;
+  average_speed: number;
+  max_speed: number;
+  start_date: string;
+}
 
 @Injectable()
 export class StravaService {
@@ -18,19 +30,23 @@ export class StravaService {
 
   private readonly baseUrl = 'https://www.strava.com/api/v3';
 
-  private accessToken = process.env.STRAVA_ACCESS_TOKEN;
-  private refreshToken = process.env.STRAVA_REFRESH_TOKEN;
-  private clientId = process.env.STRAVA_CLIENT_ID;
-  private clientSecret = process.env.STRAVA_CLIENT_SECRET;
-  private expiresAt = Number(process.env.STRAVA_EXPIRES_AT) || 0;
+  private accessToken: string = process.env.STRAVA_ACCESS_TOKEN ?? '';
+  private refreshToken: string = process.env.STRAVA_REFRESH_TOKEN ?? '';
+  private readonly clientId: string = process.env.STRAVA_CLIENT_ID ?? '';
+  private readonly clientSecret: string =
+    process.env.STRAVA_CLIENT_SECRET ?? '';
+  private expiresAt: number = Number(process.env.STRAVA_EXPIRES_AT) || 0;
 
-  // 👉 Coloca aqui dentro do service
-  private async ensureAccessToken() {
+  private async ensureAccessToken(): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
 
     if (now >= this.expiresAt) {
       const response = await firstValueFrom(
-        this.httpService.post('https://www.strava.com/oauth/token', {
+        this.httpService.post<{
+          access_token: string;
+          refresh_token: string;
+          expires_at: number;
+        }>('https://www.strava.com/oauth/token', {
           client_id: this.clientId,
           client_secret: this.clientSecret,
           grant_type: 'refresh_token',
@@ -41,8 +57,6 @@ export class StravaService {
       this.accessToken = response.data.access_token;
       this.refreshToken = response.data.refresh_token;
       this.expiresAt = response.data.expires_at;
-
-      console.log('Novo access token:', this.accessToken);
     }
 
     return this.accessToken;
@@ -52,22 +66,23 @@ export class StravaService {
     return this.activityRepo.find();
   }
 
-  async syncActivities(perPage = 5) {
-    const token = await this.ensureAccessToken(); // 👈 usa o método aqui
+  async syncActivities(perPage = 5): Promise<Strava[]> {
+    const token = await this.ensureAccessToken();
 
-    const response = await firstValueFrom<AxiosResponse<any>>(
-      this.httpService.get(`${this.baseUrl}/athlete/activities?per_page=${perPage}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
+    const response = await firstValueFrom(
+      this.httpService.get<StravaActivityData[]>(
+        `${this.baseUrl}/athlete/activities?per_page=${perPage}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      ),
     );
 
-    const activities = response.data;
-
-    for (const act of activities) {
-      const exists = await this.activityRepo.findOne({ where: { stravaId: act.id } });
+    for (const act of response.data) {
+      const exists = await this.activityRepo.findOne({
+        where: { stravaId: act.id.toString() },
+      });
       if (!exists) {
         const dto: CreateStravaDto = {
-          stravaId: act.id,
+          stravaId: act.id.toString(),
           name: act.name,
           distance: act.distance,
           movingTime: act.moving_time,

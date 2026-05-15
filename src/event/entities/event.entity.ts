@@ -5,7 +5,7 @@ import { TournamentBracket } from 'src/tournament-bracket/entities/tournament-br
 
 import {
   Entity,
-  PrimaryGeneratedColumn, 
+  PrimaryGeneratedColumn,
   ManyToOne,
   Column,
   JoinColumn,
@@ -20,26 +20,29 @@ export class Event {
   @ManyToOne(() => User, (user) => user.events)
   user: User;
 
-  @Column({ })
+  @Column({})
   title: string;
 
-  @Column({ })
+  @Column({})
   description: string;
-  
+
   @Column({ nullable: true })
   image: string;
 
-  @Column({ nullable: true }) 
+  @Column({ nullable: true })
   date: Date;
 
-  @ManyToOne(() => TournamentBracket, {nullable: true, cascade: true, eager: true})
+  @ManyToOne(() => TournamentBracket, {
+    nullable: true,
+    cascade: true,
+    eager: true,
+  })
   @JoinColumn({ name: 'tournamentBracketId' })
   tournamentBracket: TournamentBracket;
 
   @CreateDateColumn()
   createdAt: Date;
-  
+
   @UpdateDateColumn()
   updatedAt: Date;
-  
 }

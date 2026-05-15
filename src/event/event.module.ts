@@ -6,7 +6,7 @@ import { Event } from './entities/event.entity';
 import { TournamentBracket } from 'src/tournament-bracket/entities/tournament-bracket.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Event, TournamentBracket])], 
+  imports: [TypeOrmModule.forFeature([Event, TournamentBracket])],
   controllers: [EventController],
   providers: [EventService],
   exports: [EventService],

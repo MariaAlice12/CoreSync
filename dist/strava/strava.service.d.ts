@@ -8,8 +8,8 @@ export declare class StravaService {
     private readonly baseUrl;
     private accessToken;
     private refreshToken;
-    private clientId;
-    private clientSecret;
+    private readonly clientId;
+    private readonly clientSecret;
     private expiresAt;
     private ensureAccessToken;
     findAll(): Promise<Strava[]>;

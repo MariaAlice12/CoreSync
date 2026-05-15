@@ -7,15 +7,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Exemplo de API')
-    .setDescription('Documentação da API com Swagger')
+    .setTitle('CodeSync API')
+    .setDescription('Documentação da API do CodeSync')
     .setVersion('1.0')
-    .addTag('exemplo') // Opcional
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); // /api será o endpoint da documentação
-  app.useGlobalPipes(new ValidationPipe());
+  SwaggerModule.setup('api', app, document);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   await app.listen(3000);
 }
 bootstrap();

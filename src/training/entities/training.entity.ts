@@ -1,8 +1,12 @@
-// src/treino/entities/treino.entity.ts
-
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, UpdateDateColumn, CreateDateColumn } from 'typeorm';
-
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  UpdateDateColumn,
+  CreateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class Training {
@@ -16,7 +20,7 @@ export class Training {
   hour: string;
 
   @Column()
-  adress: string;
+  address: string;
 
   @Column()
   weekday: string;
@@ -25,7 +29,7 @@ export class Training {
   description: string;
 
   @Column({ default: true })
-  atictive: boolean;
+  active: boolean;
 
   @Column()
   maxStudents: number;
@@ -41,5 +45,4 @@ export class Training {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
 }

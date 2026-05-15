@@ -17,35 +17,50 @@ class CreateTrainingDto {
 exports.CreateTrainingDto = CreateTrainingDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ type: String }),
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTrainingDto.prototype, "modality", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: String }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTrainingDto.prototype, "hour", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: String }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateTrainingDto.prototype, "adress", void 0);
+], CreateTrainingDto.prototype, "address", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: String }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTrainingDto.prototype, "weekday", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: String }),
+    (0, swagger_1.ApiProperty)({ type: String, required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateTrainingDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: Boolean }),
+    (0, swagger_1.ApiProperty)({ type: Boolean, default: true }),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
-], CreateTrainingDto.prototype, "atictive", void 0);
+], CreateTrainingDto.prototype, "active", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: Number }),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
 ], CreateTrainingDto.prototype, "maxStudents", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: Number }),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
 ], CreateTrainingDto.prototype, "minStudents", void 0);
 //# sourceMappingURL=create-training.dto.js.map

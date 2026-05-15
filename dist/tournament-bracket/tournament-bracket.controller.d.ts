@@ -4,14 +4,9 @@ import { UpdateTournamentBracketDto } from './dto/update-tournament-bracket.dto'
 export declare class TournamentBracketController {
     private readonly tournamentBracketService;
     constructor(tournamentBracketService: TournamentBracketService);
-    create(createTournamentBracketDto: CreateTournamentBracketDto): {
-        name: string;
-        type: import("./dto/create-tournament-bracket.dto").BracketType;
-        teamCount: number;
-        id: number;
-    };
-    findAll(): any[];
-    findOne(id: string): any;
-    update(id: string, updateTournamentBracketDto: UpdateTournamentBracketDto): any;
-    remove(id: string): any;
+    create(createTournamentBracketDto: CreateTournamentBracketDto): Promise<import("./entities/tournament-bracket.entity").TournamentBracket>;
+    findAll(): Promise<import("./entities/tournament-bracket.entity").TournamentBracket[]>;
+    findOne(id: string): Promise<import("./entities/tournament-bracket.entity").TournamentBracket>;
+    update(id: string, updateTournamentBracketDto: UpdateTournamentBracketDto): Promise<import("typeorm").UpdateResult>;
+    remove(id: string): Promise<import("typeorm").DeleteResult>;
 }

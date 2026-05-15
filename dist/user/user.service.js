@@ -22,25 +22,24 @@ let UserService = class UserService {
         this.userRepo = userRepo;
     }
     create(dto) {
-        const newUser = {
-            ...dto
-        };
         const user = this.userRepo.create(dto);
         return this.userRepo.save(user);
     }
     findAll() {
         return this.userRepo.find();
     }
-    findOne(id) {
-        return this.userRepo.findOneBy({ id });
+    async findOne(id) {
+        const user = await this.userRepo.findOneBy({ id });
+        if (!user)
+            throw new common_1.NotFoundException(`Usuário #${id} não encontrado`);
+        return user;
     }
-    update(id, dto) {
-        const newUser = {
-            ...dto
-        };
-        return this.userRepo.update(id, newUser);
+    async update(id, dto) {
+        await this.findOne(id);
+        return this.userRepo.update(id, dto);
     }
-    remove(id) {
+    async remove(id) {
+        await this.findOne(id);
         return this.userRepo.delete(id);
     }
 };

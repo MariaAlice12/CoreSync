@@ -30,7 +30,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Training.prototype, "adress", void 0);
+], Training.prototype, "address", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
@@ -42,7 +42,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ default: true }),
     __metadata("design:type", Boolean)
-], Training.prototype, "atictive", void 0);
+], Training.prototype, "active", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)

@@ -39,12 +39,12 @@ __decorate([
         name: 'perPage',
         required: false,
         type: Number,
-        description: 'Quantidade de atividades para sincronizar'
+        description: 'Quantidade de atividades para sincronizar',
     }),
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'Atividades sincronizadas',
-        type: [create_strava_dto_1.CreateStravaDto]
+        type: [create_strava_dto_1.CreateStravaDto],
     }),
     __param(0, (0, common_1.Query)('perPage')),
     __metadata("design:type", Function),
@@ -57,7 +57,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'Lista de atividades',
-        type: [create_strava_dto_1.CreateStravaDto]
+        type: [create_strava_dto_1.CreateStravaDto],
     }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),

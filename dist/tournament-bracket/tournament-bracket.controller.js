@@ -29,21 +29,21 @@ let TournamentBracketController = class TournamentBracketController {
         return this.tournamentBracketService.findAll();
     }
     findOne(id) {
-        return this.tournamentBracketService.findOne(+id);
+        return this.tournamentBracketService.findOne(id);
     }
     update(id, updateTournamentBracketDto) {
-        return this.tournamentBracketService.update(+id, updateTournamentBracketDto);
+        return this.tournamentBracketService.update(id, updateTournamentBracketDto);
     }
     remove(id) {
-        return this.tournamentBracketService.remove(+id);
+        return this.tournamentBracketService.remove(id);
     }
 };
 exports.TournamentBracketController = TournamentBracketController;
 __decorate([
-    (0, swagger_1.ApiOperation)({ summary: 'Criar nova chave' }),
-    (0, swagger_1.ApiBody)({ type: create_tournament_bracket_dto_1.CreateTournamentBracketDto, }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Chave criada com sucesso' }),
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Criar nova chave' }),
+    (0, swagger_1.ApiBody)({ type: create_tournament_bracket_dto_1.CreateTournamentBracketDto }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Chave criada com sucesso' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_tournament_bracket_dto_1.CreateTournamentBracketDto]),
@@ -51,19 +51,22 @@ __decorate([
 ], TournamentBracketController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Listar todos as chaves' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de chaves retornada com sucesso' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Listar todas as chaves' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Lista de chaves retornada com sucesso',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], TournamentBracketController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Buscar ums chave por ID' }),
-    (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID da chave' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Chave encontrado' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Chave não encontrado' }),
-    __param(0, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiOperation)({ summary: 'Buscar uma chave por ID' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: String, description: 'UUID da chave' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Chave encontrada' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Chave não encontrada' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
@@ -71,10 +74,10 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Atualizar uma chave' }),
-    (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID da chave' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: String, description: 'UUID da chave' }),
     (0, swagger_1.ApiBody)({ type: update_tournament_bracket_dto_1.UpdateTournamentBracketDto }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Chave atualizado com sucesso' }),
-    __param(0, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Chave atualizada com sucesso' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_tournament_bracket_dto_1.UpdateTournamentBracketDto]),
@@ -83,9 +86,10 @@ __decorate([
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Remover uma chave' }),
-    (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID da chave' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: String, description: 'UUID da chave' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Chave removida com sucesso' }),
-    __param(0, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Chave não encontrada' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)

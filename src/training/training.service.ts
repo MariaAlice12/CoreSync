@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTrainingDto } from './dto/create-training.dto';
 import { UpdateTrainingDto } from './dto/update-training.dto';
 import { Training } from './entities/training.entity';
@@ -7,29 +7,33 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class TrainingService {
-    constructor(
+  constructor(
     @InjectRepository(Training)
-    private treinoRepo: Repository<Training>,
+    private trainingRepo: Repository<Training>,
   ) {}
 
- create(dto: CreateTrainingDto) {
-    const treino = this.treinoRepo.create(dto);
-    return this.treinoRepo.save(treino);
+  create(dto: CreateTrainingDto) {
+    const training = this.trainingRepo.create(dto);
+    return this.trainingRepo.save(training);
   }
 
   findAll() {
-    return this.treinoRepo.find();
+    return this.trainingRepo.find();
   }
 
-  findOne(id: number) {
-    return this.treinoRepo.findOneBy({ id });
+  async findOne(id: number) {
+    const training = await this.trainingRepo.findOneBy({ id });
+    if (!training) throw new NotFoundException(`Treino #${id} não encontrado`);
+    return training;
   }
 
-  update(id: number, dto: UpdateTrainingDto) {
-    return this.treinoRepo.update(id, dto);
+  async update(id: number, dto: UpdateTrainingDto) {
+    await this.findOne(id);
+    return this.trainingRepo.update(id, dto);
   }
 
-  remove(id: number) {
-    return this.treinoRepo.delete(id);
+  async remove(id: number) {
+    await this.findOne(id);
+    return this.trainingRepo.delete(id);
   }
 }

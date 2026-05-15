@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TrainingModule } from './training/training.module';
@@ -16,22 +17,24 @@ import { StravaModule } from './strava/strava.module';
 import { Strava } from './strava/entities/strava.entity';
 
 @Module({
-  imports: [TypeOrmModule.forRoot({
-      type: 'mysql', // ou 'postgres', 'mysql'...
-      host: 'localhost',
-      port: 3306,
-      database: 'db',
-      username: 'root',
-      password: 'root',
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 3306,
+      database: process.env.DB_DATABASE || 'db',
+      username: process.env.DB_USERNAME || 'root',
+      password: process.env.DB_PASSWORD || 'root',
       entities: [Training, User, Enrollment, Event, TournamentBracket, Strava],
-      synchronize: true, // ⚠️ Apenas pra desenvolvimento
+      synchronize: true,
     }),
     TrainingModule,
     UserModule,
     EnrollmentModule,
     EventModule,
     TournamentBracketModule,
-    StravaModule
+    StravaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

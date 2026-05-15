@@ -18,24 +18,29 @@ const training_entity_1 = require("./entities/training.entity");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 let TrainingService = class TrainingService {
-    constructor(treinoRepo) {
-        this.treinoRepo = treinoRepo;
+    constructor(trainingRepo) {
+        this.trainingRepo = trainingRepo;
     }
     create(dto) {
-        const treino = this.treinoRepo.create(dto);
-        return this.treinoRepo.save(treino);
+        const training = this.trainingRepo.create(dto);
+        return this.trainingRepo.save(training);
     }
     findAll() {
-        return this.treinoRepo.find();
+        return this.trainingRepo.find();
     }
-    findOne(id) {
-        return this.treinoRepo.findOneBy({ id });
+    async findOne(id) {
+        const training = await this.trainingRepo.findOneBy({ id });
+        if (!training)
+            throw new common_1.NotFoundException(`Treino #${id} não encontrado`);
+        return training;
     }
-    update(id, dto) {
-        return this.treinoRepo.update(id, dto);
+    async update(id, dto) {
+        await this.findOne(id);
+        return this.trainingRepo.update(id, dto);
     }
-    remove(id) {
-        return this.treinoRepo.delete(id);
+    async remove(id) {
+        await this.findOne(id);
+        return this.trainingRepo.delete(id);
     }
 };
 exports.TrainingService = TrainingService;

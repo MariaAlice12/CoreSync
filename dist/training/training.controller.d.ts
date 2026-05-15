@@ -6,7 +6,7 @@ export declare class TrainingController {
     constructor(trainingService: TrainingService);
     create(createTrainingDto: CreateTrainingDto): Promise<import("./entities/training.entity").Training>;
     findAll(): Promise<import("./entities/training.entity").Training[]>;
-    findOne(id: string): Promise<import("./entities/training.entity").Training>;
-    update(id: string, updateTrainingDto: UpdateTrainingDto): Promise<import("typeorm").UpdateResult>;
-    remove(id: string): Promise<import("typeorm").DeleteResult>;
+    findOne(id: number): Promise<import("./entities/training.entity").Training>;
+    update(id: number, updateTrainingDto: UpdateTrainingDto): Promise<import("typeorm").UpdateResult>;
+    remove(id: number): Promise<import("typeorm").DeleteResult>;
 }

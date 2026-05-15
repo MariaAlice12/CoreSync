@@ -6,7 +6,7 @@ export declare class EventController {
     constructor(eventService: EventService);
     create(createEventDto: CreateEventDto): Promise<import("./entities/event.entity").Event>;
     findAll(): Promise<import("./entities/event.entity").Event[]>;
-    findOne(id: string): Promise<import("./entities/event.entity").Event>;
-    update(id: string, updateEventDto: UpdateEventDto): Promise<import("typeorm").UpdateResult>;
-    remove(id: string): Promise<import("typeorm").DeleteResult>;
+    findOne(id: number): Promise<import("./entities/event.entity").Event>;
+    update(id: number, updateEventDto: UpdateEventDto): Promise<import("typeorm").UpdateResult>;
+    remove(id: number): Promise<import("typeorm").DeleteResult>;
 }

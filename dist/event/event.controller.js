@@ -29,20 +29,20 @@ let EventController = class EventController {
         return this.eventService.findAll();
     }
     findOne(id) {
-        return this.eventService.findOne(+id);
+        return this.eventService.findOne(id);
     }
     update(id, updateEventDto) {
-        return this.eventService.update(+id, updateEventDto);
+        return this.eventService.update(id, updateEventDto);
     }
     remove(id) {
-        return this.eventService.remove(+id);
+        return this.eventService.remove(id);
     }
 };
 exports.EventController = EventController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Criar novo evento' }),
-    (0, swagger_1.ApiBody)({ type: create_event_dto_1.CreateEventDto, }),
+    (0, swagger_1.ApiBody)({ type: create_event_dto_1.CreateEventDto }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Evento criado com sucesso' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -52,7 +52,10 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Listar todos os eventos' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de eventos retornada com sucesso' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Lista de eventos retornada com sucesso',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
@@ -63,9 +66,9 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do evento' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Evento encontrado' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Evento não encontrado' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], EventController.prototype, "findOne", null);
 __decorate([
@@ -74,10 +77,10 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do evento' }),
     (0, swagger_1.ApiBody)({ type: update_event_dto_1.UpdateEventDto }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Evento atualizado com sucesso' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_event_dto_1.UpdateEventDto]),
+    __metadata("design:paramtypes", [Number, update_event_dto_1.UpdateEventDto]),
     __metadata("design:returntype", void 0)
 ], EventController.prototype, "update", null);
 __decorate([
@@ -85,9 +88,10 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Remover um evento' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do evento' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Evento removido com sucesso' }),
-    __param(0, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Evento não encontrado' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], EventController.prototype, "remove", null);
 exports.EventController = EventController = __decorate([

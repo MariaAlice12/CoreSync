@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
 import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
 import { Enrollment } from './entities/enrollment.entity';
@@ -12,20 +12,14 @@ export class EnrollmentService {
   constructor(
     @InjectRepository(Enrollment)
     private enrollmentRepo: Repository<Enrollment>,
-
     private userService: UserService,
-
     private trainingService: TrainingService,
-
-
-  ) { }
+  ) {}
 
   async create(dto: CreateEnrollmentDto) {
     const user = await this.userService.findOne(dto.userId);
     const training = await this.trainingService.findOne(dto.trainingId);
-
-
-    const enrollment = this.enrollmentRepo.create({...dto, user, training});
+    const enrollment = this.enrollmentRepo.create({ ...dto, user, training });
     return this.enrollmentRepo.save(enrollment);
   }
 
@@ -33,15 +27,20 @@ export class EnrollmentService {
     return this.enrollmentRepo.find();
   }
 
-  findOne(id: number) {
-    return this.enrollmentRepo.findOne({ where: { id } });
+  async findOne(id: number) {
+    const enrollment = await this.enrollmentRepo.findOne({ where: { id } });
+    if (!enrollment)
+      throw new NotFoundException(`Matrícula #${id} não encontrada`);
+    return enrollment;
   }
 
-  update(id: number, dto: UpdateEnrollmentDto) {
+  async update(id: number, dto: UpdateEnrollmentDto) {
+    await this.findOne(id);
     return this.enrollmentRepo.update(id, dto);
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    await this.findOne(id);
     return this.enrollmentRepo.delete(id);
   }
 }

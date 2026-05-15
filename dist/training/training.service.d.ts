@@ -3,8 +3,8 @@ import { UpdateTrainingDto } from './dto/update-training.dto';
 import { Training } from './entities/training.entity';
 import { Repository } from 'typeorm';
 export declare class TrainingService {
-    private treinoRepo;
-    constructor(treinoRepo: Repository<Training>);
+    private trainingRepo;
+    constructor(trainingRepo: Repository<Training>);
     create(dto: CreateTrainingDto): Promise<Training>;
     findAll(): Promise<Training[]>;
     findOne(id: number): Promise<Training>;

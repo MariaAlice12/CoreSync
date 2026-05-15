@@ -1,10 +1,10 @@
 export declare class CreateTrainingDto {
     modality: string;
     hour: string;
-    adress: string;
+    address: string;
     weekday: string;
-    description: string;
-    atictive: boolean;
+    description?: string;
+    active?: boolean;
     maxStudents: number;
     minStudents: number;
 }

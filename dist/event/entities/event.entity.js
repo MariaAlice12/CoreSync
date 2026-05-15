@@ -41,7 +41,11 @@ __decorate([
     __metadata("design:type", Date)
 ], Event.prototype, "date", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => tournament_bracket_entity_1.TournamentBracket, { nullable: true, cascade: true, eager: true }),
+    (0, typeorm_1.ManyToOne)(() => tournament_bracket_entity_1.TournamentBracket, {
+        nullable: true,
+        cascade: true,
+        eager: true,
+    }),
     (0, typeorm_1.JoinColumn)({ name: 'tournamentBracketId' }),
     __metadata("design:type", tournament_bracket_entity_1.TournamentBracket)
 ], Event.prototype, "tournamentBracket", void 0);

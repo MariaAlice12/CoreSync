@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const training_module_1 = require("./training/training.module");
@@ -28,13 +29,15 @@ let AppModule = class AppModule {
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forRoot({
+        imports: [
+            config_1.ConfigModule.forRoot({ isGlobal: true }),
+            typeorm_1.TypeOrmModule.forRoot({
                 type: 'mysql',
-                host: 'localhost',
-                port: 3306,
-                database: 'db',
-                username: 'root',
-                password: 'root',
+                host: process.env.DB_HOST || 'localhost',
+                port: Number(process.env.DB_PORT) || 3306,
+                database: process.env.DB_DATABASE || 'db',
+                username: process.env.DB_USERNAME || 'root',
+                password: process.env.DB_PASSWORD || 'root',
                 entities: [training_entity_1.Training, user_entity_1.User, enrollment_entity_1.Enrollment, event_entity_1.Event, tournament_bracket_entity_1.TournamentBracket, strava_entity_1.Strava],
                 synchronize: true,
             }),
@@ -43,7 +46,7 @@ exports.AppModule = AppModule = __decorate([
             enrollment_module_1.EnrollmentModule,
             event_module_1.EventModule,
             tournament_bracket_module_1.TournamentBracketModule,
-            strava_module_1.StravaModule
+            strava_module_1.StravaModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

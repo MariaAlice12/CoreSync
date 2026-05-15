@@ -7,7 +7,6 @@ export declare class EventService {
     private eventRepo;
     private bracketRepository;
     constructor(eventRepo: Repository<Event>, bracketRepository: Repository<TournamentBracket>);
-    createEvent(dto: CreateEventDto): Promise<Event>;
     create(dto: CreateEventDto): Promise<Event>;
     findAll(): Promise<Event[]>;
     findOne(id: number): Promise<Event>;

@@ -18,7 +18,9 @@ export class Enrollment {
   @ManyToOne(() => User, (user) => user.enrollments, { eager: true })
   user: User;
 
-  @ManyToOne(() => Training, (training) => training.enrollments, { eager: true })
+  @ManyToOne(() => Training, (training) => training.enrollments, {
+    eager: true,
+  })
   training: Training;
 
   @CreateDateColumn()

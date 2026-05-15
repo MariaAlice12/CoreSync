@@ -29,20 +29,20 @@ let UserController = class UserController {
         return this.userService.findAll();
     }
     findOne(id) {
-        return this.userService.findOne(+id);
+        return this.userService.findOne(id);
     }
     update(id, updateUserDto) {
-        return this.userService.update(+id, updateUserDto);
+        return this.userService.update(id, updateUserDto);
     }
     remove(id) {
-        return this.userService.remove(+id);
+        return this.userService.remove(id);
     }
 };
 exports.UserController = UserController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Criar novo usuário' }),
-    (0, swagger_1.ApiBody)({ type: create_user_dto_1.CreateUserDto, }),
+    (0, swagger_1.ApiBody)({ type: create_user_dto_1.CreateUserDto }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Usuário criado com sucesso' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -52,7 +52,10 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Listar todos os usuários' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Lista de usuários retornada com sucesso' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Lista de usuários retornada com sucesso',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
@@ -63,9 +66,9 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do usuário' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Usuário encontrado' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Usuário não encontrado' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "findOne", null);
 __decorate([
@@ -74,10 +77,10 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do usuário' }),
     (0, swagger_1.ApiBody)({ type: update_user_dto_1.UpdateUserDto }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Usuário atualizado com sucesso' }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_user_dto_1.UpdateUserDto]),
+    __metadata("design:paramtypes", [Number, update_user_dto_1.UpdateUserDto]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "update", null);
 __decorate([
@@ -85,9 +88,10 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Remover um usuário' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: Number, description: 'ID do usuário' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Usuário removido com sucesso' }),
-    __param(0, (0, common_1.Param)('id')),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Usuário não encontrado' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "remove", null);
 exports.UserController = UserController = __decorate([

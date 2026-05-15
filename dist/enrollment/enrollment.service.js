@@ -34,13 +34,18 @@ let EnrollmentService = class EnrollmentService {
     findAll() {
         return this.enrollmentRepo.find();
     }
-    findOne(id) {
-        return this.enrollmentRepo.findOne({ where: { id } });
+    async findOne(id) {
+        const enrollment = await this.enrollmentRepo.findOne({ where: { id } });
+        if (!enrollment)
+            throw new common_1.NotFoundException(`Matrícula #${id} não encontrada`);
+        return enrollment;
     }
-    update(id, dto) {
+    async update(id, dto) {
+        await this.findOne(id);
         return this.enrollmentRepo.update(id, dto);
     }
-    remove(id) {
+    async remove(id) {
+        await this.findOne(id);
         return this.enrollmentRepo.delete(id);
     }
 };

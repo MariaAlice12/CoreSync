@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { Event } from './entities/event.entity';
@@ -8,33 +8,24 @@ import { TournamentBracket } from 'src/tournament-bracket/entities/tournament-br
 
 @Injectable()
 export class EventService {
-    constructor(
+  constructor(
     @InjectRepository(Event)
     private eventRepo: Repository<Event>,
 
     @InjectRepository(TournamentBracket)
     private bracketRepository: Repository<TournamentBracket>,
-
   ) {}
 
- async createEvent(dto: CreateEventDto): Promise<Event> {
+  async create(dto: CreateEventDto): Promise<Event> {
     const event = this.eventRepo.create(dto);
 
-    // ✅ Lógica de criação da chave (tournament bracket)
     if (dto.bracketGenerated) {
-      const bracket = new TournamentBracket();
-      bracket.name = `${dto.title} - Bracket`;
-
-      const savedBracket = await this.bracketRepository.save(bracket);
-      event.tournamentBracket = savedBracket;
+      const bracket = this.bracketRepository.create({
+        name: `${dto.title} - Bracket`,
+      });
+      event.tournamentBracket = await this.bracketRepository.save(bracket);
     }
 
-    return this.eventRepo.save(event);
-  }
-
-
- create(dto: CreateEventDto) {
-    const event = this.eventRepo.create(dto);
     return this.eventRepo.save(event);
   }
 
@@ -42,15 +33,19 @@ export class EventService {
     return this.eventRepo.find();
   }
 
-  findOne(id: number) {
-    return this.eventRepo.findOneBy({ id });
+  async findOne(id: number) {
+    const event = await this.eventRepo.findOneBy({ id });
+    if (!event) throw new NotFoundException(`Evento #${id} não encontrado`);
+    return event;
   }
 
-  update(id: number, dto: UpdateEventDto) {
+  async update(id: number, dto: UpdateEventDto) {
+    await this.findOne(id);
     return this.eventRepo.update(id, dto);
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    await this.findOne(id);
     return this.eventRepo.delete(id);
   }
 }

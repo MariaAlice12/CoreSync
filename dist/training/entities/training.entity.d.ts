@@ -3,10 +3,10 @@ export declare class Training {
     id: number;
     modality: string;
     hour: string;
-    adress: string;
+    address: string;
     weekday: string;
     description: string;
-    atictive: boolean;
+    active: boolean;
     maxStudents: number;
     minStudents: number;
     enrollments: Enrollment[];
