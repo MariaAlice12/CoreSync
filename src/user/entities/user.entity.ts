@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { Event } from 'src/event/entities/event.entity';
+import { EventRegistration } from 'src/event-registration/entities/event-registration.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -36,6 +37,9 @@ export class User {
 
   @OneToMany(() => Event, (event) => event.user)
   events: Event[];
+
+  @OneToMany(() => EventRegistration, (reg) => reg.user)
+  eventRegistrations: EventRegistration[];
 
   @CreateDateColumn()
   createdAt: Date;

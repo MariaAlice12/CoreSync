@@ -25,9 +25,11 @@ let EventService = class EventService {
     }
     async create(dto) {
         const event = this.eventRepo.create(dto);
-        if (dto.bracketGenerated) {
+        if (dto.bracketType) {
             const bracket = this.bracketRepository.create({
                 name: `${dto.title} - Bracket`,
+                type: dto.bracketType,
+                teamCount: dto.teamCount ?? 2,
             });
             event.tournamentBracket = await this.bracketRepository.save(bracket);
         }

@@ -25,6 +25,8 @@ const tournament_bracket_module_1 = require("./tournament-bracket/tournament-bra
 const tournament_bracket_entity_1 = require("./tournament-bracket/entities/tournament-bracket.entity");
 const strava_module_1 = require("./strava/strava.module");
 const strava_entity_1 = require("./strava/entities/strava.entity");
+const event_registration_module_1 = require("./event-registration/event-registration.module");
+const event_registration_entity_1 = require("./event-registration/entities/event-registration.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -40,7 +42,7 @@ exports.AppModule = AppModule = __decorate([
                 database: process.env.DB_DATABASE || 'db',
                 username: process.env.DB_USERNAME || 'root',
                 password: process.env.DB_PASSWORD || 'root',
-                entities: [training_entity_1.Training, user_entity_1.User, enrollment_entity_1.Enrollment, event_entity_1.Event, tournament_bracket_entity_1.TournamentBracket, strava_entity_1.Strava],
+                entities: [training_entity_1.Training, user_entity_1.User, enrollment_entity_1.Enrollment, event_entity_1.Event, tournament_bracket_entity_1.TournamentBracket, strava_entity_1.Strava, event_registration_entity_1.EventRegistration],
                 synchronize: true,
             }),
             training_module_1.TrainingModule,
@@ -49,6 +51,7 @@ exports.AppModule = AppModule = __decorate([
             event_module_1.EventModule,
             tournament_bracket_module_1.TournamentBracketModule,
             strava_module_1.StravaModule,
+            event_registration_module_1.EventRegistrationModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

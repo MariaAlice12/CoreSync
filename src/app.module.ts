@@ -16,6 +16,8 @@ import { TournamentBracketModule } from './tournament-bracket/tournament-bracket
 import { TournamentBracket } from './tournament-bracket/entities/tournament-bracket.entity';
 import { StravaModule } from './strava/strava.module';
 import { Strava } from './strava/entities/strava.entity';
+import { EventRegistrationModule } from './event-registration/event-registration.module';
+import { EventRegistration } from './event-registration/entities/event-registration.entity';
 
 @Module({
   imports: [
@@ -28,7 +30,7 @@ import { Strava } from './strava/entities/strava.entity';
       database: process.env.DB_DATABASE || 'db',
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || 'root',
-      entities: [Training, User, Enrollment, Event, TournamentBracket, Strava],
+      entities: [Training, User, Enrollment, Event, TournamentBracket, Strava, EventRegistration],
       synchronize: true,
     }),
     TrainingModule,
@@ -37,6 +39,7 @@ import { Strava } from './strava/entities/strava.entity';
     EventModule,
     TournamentBracketModule,
     StravaModule,
+    EventRegistrationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -13,27 +13,14 @@ exports.UpdateEventDto = void 0;
 const mapped_types_1 = require("@nestjs/mapped-types");
 const create_event_dto_1 = require("./create-event.dto");
 const swagger_1 = require("@nestjs/swagger");
+const class_validator_1 = require("class-validator");
 class UpdateEventDto extends (0, mapped_types_1.PartialType)(create_event_dto_1.CreateEventDto) {
 }
 exports.UpdateEventDto = UpdateEventDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: String }),
-    __metadata("design:type", String)
-], UpdateEventDto.prototype, "title", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ type: String }),
-    __metadata("design:type", String)
-], UpdateEventDto.prototype, "description", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ type: String }),
-    __metadata("design:type", String)
-], UpdateEventDto.prototype, "image", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ type: Date }),
-    __metadata("design:type", Date)
-], UpdateEventDto.prototype, "date", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ type: String }),
+    (0, swagger_1.ApiProperty)({ type: String, required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateEventDto.prototype, "hour", void 0);
 //# sourceMappingURL=update-event.dto.js.map

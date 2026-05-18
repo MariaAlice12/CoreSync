@@ -2,11 +2,13 @@
 
 import { User } from 'src/user/entities/user.entity';
 import { TournamentBracket } from 'src/tournament-bracket/entities/tournament-bracket.entity';
+import { EventRegistration } from 'src/event-registration/entities/event-registration.entity';
 
 import {
   Entity,
   PrimaryGeneratedColumn,
   ManyToOne,
+  OneToMany,
   Column,
   JoinColumn,
   CreateDateColumn,
@@ -19,6 +21,9 @@ export class Event {
 
   @ManyToOne(() => User, (user) => user.events)
   user: User;
+
+  @OneToMany(() => EventRegistration, (reg) => reg.event)
+  registrations: EventRegistration[];
 
   @Column({})
   title: string;

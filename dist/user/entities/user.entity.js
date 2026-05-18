@@ -13,6 +13,7 @@ exports.User = void 0;
 const class_transformer_1 = require("class-transformer");
 const enrollment_entity_1 = require("../../enrollment/entities/enrollment.entity");
 const event_entity_1 = require("../../event/entities/event.entity");
+const event_registration_entity_1 = require("../../event-registration/entities/event-registration.entity");
 const typeorm_1 = require("typeorm");
 let User = class User {
 };
@@ -50,6 +51,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => event_entity_1.Event, (event) => event.user),
     __metadata("design:type", Array)
 ], User.prototype, "events", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => event_registration_entity_1.EventRegistration, (reg) => reg.user),
+    __metadata("design:type", Array)
+], User.prototype, "eventRegistrations", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
