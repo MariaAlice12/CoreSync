@@ -19,8 +19,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const config = new DocumentBuilder()
-    .setTitle('CodeSync API')
-    .setDescription('Documentação da API do CodeSync')
+    .setTitle('CoreSync API')
+    .setDescription('Documentação da API do CoreSync')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

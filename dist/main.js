@@ -17,8 +17,8 @@ async function bootstrap() {
     app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
     app.useGlobalInterceptors(new common_1.ClassSerializerInterceptor(app.get(core_1.Reflector)));
     const config = new swagger_1.DocumentBuilder()
-        .setTitle('CodeSync API')
-        .setDescription('Documentação da API do CodeSync')
+        .setTitle('CoreSync API')
+        .setDescription('Documentação da API do CoreSync')
         .setVersion('1.0')
         .addBearerAuth()
         .build();
