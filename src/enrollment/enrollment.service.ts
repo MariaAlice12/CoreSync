@@ -43,4 +43,14 @@ export class EnrollmentService {
     await this.findOne(id);
     return this.enrollmentRepo.delete(id);
   }
+
+  async existsForUserAndTraining(
+    userId: number,
+    trainingId: number,
+  ): Promise<boolean> {
+    const count = await this.enrollmentRepo.count({
+      where: { user: { id: userId }, training: { id: trainingId } },
+    });
+    return count > 0;
+  }
 }

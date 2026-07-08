@@ -1,4 +1,5 @@
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
+import { User } from 'src/user/entities/user.entity';
 export declare class Training {
     id: number;
     modality: string;
@@ -9,6 +10,7 @@ export declare class Training {
     active: boolean;
     maxStudents: number;
     minStudents: number;
+    professor: User | null;
     enrollments: Enrollment[];
     createdAt: Date;
     updatedAt: Date;

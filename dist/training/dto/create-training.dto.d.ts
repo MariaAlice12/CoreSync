@@ -7,4 +7,5 @@ export declare class CreateTrainingDto {
     active?: boolean;
     maxStudents: number;
     minStudents: number;
+    professorId?: number;
 }

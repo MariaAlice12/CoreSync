@@ -48,6 +48,12 @@ let EnrollmentService = class EnrollmentService {
         await this.findOne(id);
         return this.enrollmentRepo.delete(id);
     }
+    async existsForUserAndTraining(userId, trainingId) {
+        const count = await this.enrollmentRepo.count({
+            where: { user: { id: userId }, training: { id: trainingId } },
+        });
+        return count > 0;
+    }
 };
 exports.EnrollmentService = EnrollmentService;
 exports.EnrollmentService = EnrollmentService = __decorate([

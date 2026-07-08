@@ -22,6 +22,7 @@ exports.EnrollmentModule = EnrollmentModule = __decorate([
         imports: [typeorm_1.TypeOrmModule.forFeature([enrollment_entity_1.Enrollment]), user_module_1.UserModule, training_module_1.TrainingModule],
         controllers: [enrollment_controller_1.EnrollmentController],
         providers: [enrollment_service_1.EnrollmentService],
+        exports: [enrollment_service_1.EnrollmentService],
     })
 ], EnrollmentModule);
 //# sourceMappingURL=enrollment.module.js.map

@@ -17,12 +17,35 @@ const common_1 = require("@nestjs/common");
 const training_entity_1 = require("./entities/training.entity");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
+const user_service_1 = require("../user/user.service");
 let TrainingService = class TrainingService {
-    constructor(trainingRepo) {
+    constructor(trainingRepo, userService) {
         this.trainingRepo = trainingRepo;
+        this.userService = userService;
     }
-    create(dto) {
-        const training = this.trainingRepo.create(dto);
+    async resolveProfessor(professorId) {
+        const professor = await this.userService.findOne(professorId);
+        if (professor.userType !== 'professor') {
+            throw new common_1.BadRequestException(`Usuário #${professorId} não é um professor`);
+        }
+        return professor;
+    }
+    async create(dto, currentUser) {
+        const { professorId, ...rest } = dto;
+        if (currentUser.userType === 'aluno') {
+            throw new common_1.ForbiddenException('Alunos não podem criar treinos');
+        }
+        let professor;
+        if (currentUser.userType === 'professor') {
+            professor = await this.userService.findOne(currentUser.id);
+        }
+        else {
+            if (!professorId) {
+                throw new common_1.BadRequestException('professorId é obrigatório quando o treino é criado por um admin');
+            }
+            professor = await this.resolveProfessor(professorId);
+        }
+        const training = this.trainingRepo.create({ ...rest, professor });
         return this.trainingRepo.save(training);
     }
     findAll() {
@@ -34,9 +57,17 @@ let TrainingService = class TrainingService {
             throw new common_1.NotFoundException(`Treino #${id} não encontrado`);
         return training;
     }
-    async update(id, dto) {
-        await this.findOne(id);
-        return this.trainingRepo.update(id, dto);
+    async update(id, dto, currentUser) {
+        const training = await this.findOne(id);
+        const { professorId, ...rest } = dto;
+        if (professorId !== undefined) {
+            if (currentUser.userType !== 'admin') {
+                throw new common_1.ForbiddenException('Somente admins podem reatribuir o professor de um treino');
+            }
+            training.professor = await this.resolveProfessor(professorId);
+        }
+        Object.assign(training, rest);
+        return this.trainingRepo.save(training);
     }
     async remove(id) {
         await this.findOne(id);
@@ -47,6 +78,7 @@ exports.TrainingService = TrainingService;
 exports.TrainingService = TrainingService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(training_entity_1.Training)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        user_service_1.UserService])
 ], TrainingService);
 //# sourceMappingURL=training.service.js.map

@@ -5,6 +5,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsOptional,
+  IsPositive,
   IsString,
   Min,
 } from 'class-validator';
@@ -49,4 +50,15 @@ export class CreateTrainingDto {
   @IsInt()
   @Min(1)
   minStudents: number;
+
+  @ApiProperty({
+    type: Number,
+    required: false,
+    description:
+      'Obrigatório quando o criador é admin; ignorado quando o criador é professor (auto-atribuído)',
+  })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  professorId?: number;
 }

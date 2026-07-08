@@ -18,6 +18,9 @@ import { StravaModule } from './strava/strava.module';
 import { Strava } from './strava/entities/strava.entity';
 import { EventRegistrationModule } from './event-registration/event-registration.module';
 import { EventRegistration } from './event-registration/entities/event-registration.entity';
+import { SurveyModule } from './survey/survey.module';
+import { SurveyResponse } from './survey/entities/survey-response.entity';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -30,7 +33,7 @@ import { EventRegistration } from './event-registration/entities/event-registrat
       database: process.env.DB_DATABASE || 'db',
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || 'root',
-      entities: [Training, User, Enrollment, Event, TournamentBracket, Strava, EventRegistration],
+      entities: [Training, User, Enrollment, Event, TournamentBracket, Strava, EventRegistration, SurveyResponse],
       synchronize: true,
     }),
     TrainingModule,
@@ -40,6 +43,8 @@ import { EventRegistration } from './event-registration/entities/event-registrat
     TournamentBracketModule,
     StravaModule,
     EventRegistrationModule,
+    SurveyModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

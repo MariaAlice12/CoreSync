@@ -14,4 +14,5 @@ export declare class EnrollmentService {
     findOne(id: number): Promise<Enrollment>;
     update(id: number, dto: UpdateEnrollmentDto): Promise<import("typeorm").UpdateResult>;
     remove(id: number): Promise<import("typeorm").DeleteResult>;
+    existsForUserAndTraining(userId: number, trainingId: number): Promise<boolean>;
 }

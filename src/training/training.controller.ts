@@ -21,6 +21,10 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '../auth/decorators/current-user.decorator';
 
 @ApiTags('Treinos')
 @Controller('training')
@@ -33,8 +37,11 @@ export class TrainingController {
   @ApiOperation({ summary: 'Criar novo treino' })
   @ApiBody({ type: CreateTrainingDto })
   @ApiResponse({ status: 201, description: 'Treino criado com sucesso' })
-  create(@Body() createTrainingDto: CreateTrainingDto) {
-    return this.trainingService.create(createTrainingDto);
+  create(
+    @Body() createTrainingDto: CreateTrainingDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return this.trainingService.create(createTrainingDto, user);
   }
 
   @Get()
@@ -66,8 +73,9 @@ export class TrainingController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTrainingDto: UpdateTrainingDto,
+    @CurrentUser() user: CurrentUserPayload,
   ) {
-    return this.trainingService.update(id, updateTrainingDto);
+    return this.trainingService.update(id, updateTrainingDto, user);
   }
 
   @UseGuards(JwtAuthGuard)

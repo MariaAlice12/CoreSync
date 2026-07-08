@@ -63,4 +63,15 @@ __decorate([
     (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
 ], CreateTrainingDto.prototype, "minStudents", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: Number,
+        required: false,
+        description: 'Obrigatório quando o criador é admin; ignorado quando o criador é professor (auto-atribuído)',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.IsPositive)(),
+    __metadata("design:type", Number)
+], CreateTrainingDto.prototype, "professorId", void 0);
 //# sourceMappingURL=create-training.dto.js.map

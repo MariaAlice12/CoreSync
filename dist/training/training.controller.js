@@ -19,12 +19,13 @@ const create_training_dto_1 = require("./dto/create-training.dto");
 const update_training_dto_1 = require("./dto/update-training.dto");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
 let TrainingController = class TrainingController {
     constructor(trainingService) {
         this.trainingService = trainingService;
     }
-    create(createTrainingDto) {
-        return this.trainingService.create(createTrainingDto);
+    create(createTrainingDto, user) {
+        return this.trainingService.create(createTrainingDto, user);
     }
     findAll() {
         return this.trainingService.findAll();
@@ -32,8 +33,8 @@ let TrainingController = class TrainingController {
     findOne(id) {
         return this.trainingService.findOne(id);
     }
-    update(id, updateTrainingDto) {
-        return this.trainingService.update(id, updateTrainingDto);
+    update(id, updateTrainingDto, user) {
+        return this.trainingService.update(id, updateTrainingDto, user);
     }
     remove(id) {
         return this.trainingService.remove(id);
@@ -48,8 +49,9 @@ __decorate([
     (0, swagger_1.ApiBody)({ type: create_training_dto_1.CreateTrainingDto }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Treino criado com sucesso' }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_training_dto_1.CreateTrainingDto]),
+    __metadata("design:paramtypes", [create_training_dto_1.CreateTrainingDto, Object]),
     __metadata("design:returntype", void 0)
 ], TrainingController.prototype, "create", null);
 __decorate([
@@ -84,8 +86,9 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Treino atualizado com sucesso' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, update_training_dto_1.UpdateTrainingDto]),
+    __metadata("design:paramtypes", [Number, update_training_dto_1.UpdateTrainingDto, Object]),
     __metadata("design:returntype", void 0)
 ], TrainingController.prototype, "update", null);
 __decorate([

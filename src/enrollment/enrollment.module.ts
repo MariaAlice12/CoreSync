@@ -10,5 +10,6 @@ import { TrainingModule } from 'src/training/training.module';
   imports: [TypeOrmModule.forFeature([Enrollment]), UserModule, TrainingModule],
   controllers: [EnrollmentController],
   providers: [EnrollmentService],
+  exports: [EnrollmentService],
 })
 export class EnrollmentModule {}
