@@ -76,7 +76,9 @@ export class AnalyticsService {
   }
 
   async adminOverview() {
-    const trainings = await this.trainingRepo.find();
+    // Treinos desativados ficam de fora: com 0 alunos, sempre apareceriam
+    // como "abaixo do mínimo" e distorceriam os totais.
+    const trainings = await this.trainingRepo.find({ where: { active: true } });
     const rows = await Promise.all(
       trainings.map((t) => this.buildTrainingRow(t)),
     );
@@ -116,7 +118,7 @@ export class AnalyticsService {
     }
 
     const trainings = await this.trainingRepo.find({
-      where: { professor: { id: professorId } },
+      where: { professor: { id: professorId }, active: true },
     });
     const rows = await Promise.all(
       trainings.map((t) => this.buildTrainingRow(t)),

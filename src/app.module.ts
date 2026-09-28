@@ -5,37 +5,21 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { TrainingModule } from './training/training.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Training } from './training/entities/training.entity';
 import { UserModule } from './user/user.module';
-import { User } from './user/entities/user.entity';
 import { EnrollmentModule } from './enrollment/enrollment.module';
-import { Enrollment } from './enrollment/entities/enrollment.entity';
 import { EventModule } from './event/event.module';
-import { Event } from './event/entities/event.entity';
 import { TournamentBracketModule } from './tournament-bracket/tournament-bracket.module';
-import { TournamentBracket } from './tournament-bracket/entities/tournament-bracket.entity';
 import { StravaModule } from './strava/strava.module';
-import { Strava } from './strava/entities/strava.entity';
 import { EventRegistrationModule } from './event-registration/event-registration.module';
-import { EventRegistration } from './event-registration/entities/event-registration.entity';
 import { SurveyModule } from './survey/survey.module';
-import { SurveyResponse } from './survey/entities/survey-response.entity';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { dataSourceOptions } from './database/data-source';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT) || 3306,
-      database: process.env.DB_DATABASE || 'db',
-      username: process.env.DB_USERNAME || 'root',
-      password: process.env.DB_PASSWORD || 'root',
-      entities: [Training, User, Enrollment, Event, TournamentBracket, Strava, EventRegistration, SurveyResponse],
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions),
     TrainingModule,
     UserModule,
     EnrollmentModule,

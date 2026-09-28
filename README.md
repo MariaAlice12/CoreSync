@@ -77,9 +77,9 @@ cp .env.example .env
 npm install
 
 # 4. Crie o banco de dados no MySQL / Create the database in MySQL
-# O TypeORM cria as tabelas automaticamente (synchronize: true)
-# TypeORM creates the tables automatically (synchronize: true — dev only)
 mysql -u root -p -e "CREATE DATABASE coresync;"
+# Crie as tabelas com as migrations / Create the tables with migrations
+npm run migration:run
 
 # 5. Inicie em modo de desenvolvimento / Start in development mode
 npm run start:dev
@@ -87,6 +87,36 @@ npm run start:dev
 
 > A API estará disponível em / API will be available at: `http://localhost:8080`  
 > Documentação Swagger / Swagger Docs: `http://localhost:8080/api`
+
+---
+
+## Deploy do banco com Docker Compose / Database deploy
+
+O schema é versionado com **migrations do TypeORM** (`src/database/migrations`). O `docker-compose.yml` sobe tudo em ordem:
+
+1. `db` — MySQL 8, com healthcheck e volume `db_data`
+2. `migrate` — roda `migration:run` e encerra
+3. `api` — só sobe se as migrations terminarem com sucesso
+
+```bash
+cp .env.example .env            # preencha DB_PASSWORD, DB_ROOT_PASSWORD e JWT_SECRET
+./scripts/db-deploy.sh          # build -> MySQL -> backup (mysqldump) -> migrations -> API
+# ou, sem backup:
+docker compose up -d --build
+```
+
+Os backups ficam em `backups/` (fora do git).
+
+### Migrations
+
+```bash
+npm run migration:generate -- src/database/migrations/NomeDaMudanca  # gera a partir das entidades
+npm run migration:run                                                 # aplica as pendentes
+npm run migration:revert                                              # desfaz a última
+npm run migration:show                                                # lista o status
+```
+
+Para gerar, rode contra um banco com o schema atual (por exemplo, `docker compose up -d db`, com `DB_HOST=localhost` no `.env`).
 
 ---
 
@@ -101,6 +131,8 @@ Copie `.env.example` para `.env` e preencha os valores:
 | `DB_DATABASE` | `coresync` | Nome do banco de dados |
 | `DB_USERNAME` | `root` | Usuário do MySQL |
 | `DB_PASSWORD` | `root` | Senha do MySQL |
+| `DB_ROOT_PASSWORD` | — | Senha do root do MySQL (apenas docker compose) |
+| `DB_SYNCHRONIZE` | `false` | `true` recria o schema a partir das entidades (só em dev) |
 | `JWT_SECRET` | — | Chave secreta para assinar os tokens JWT |
 | `PORT` | `8080` | Porta em que o servidor sobe |
 | `FRONTEND_URL` | `http://localhost:5173` | URL(s) do frontend para configuração do CORS |

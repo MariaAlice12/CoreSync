@@ -14,22 +14,15 @@ const app_service_1 = require("./app.service");
 const auth_module_1 = require("./auth/auth.module");
 const training_module_1 = require("./training/training.module");
 const typeorm_1 = require("@nestjs/typeorm");
-const training_entity_1 = require("./training/entities/training.entity");
 const user_module_1 = require("./user/user.module");
-const user_entity_1 = require("./user/entities/user.entity");
 const enrollment_module_1 = require("./enrollment/enrollment.module");
-const enrollment_entity_1 = require("./enrollment/entities/enrollment.entity");
 const event_module_1 = require("./event/event.module");
-const event_entity_1 = require("./event/entities/event.entity");
 const tournament_bracket_module_1 = require("./tournament-bracket/tournament-bracket.module");
-const tournament_bracket_entity_1 = require("./tournament-bracket/entities/tournament-bracket.entity");
 const strava_module_1 = require("./strava/strava.module");
-const strava_entity_1 = require("./strava/entities/strava.entity");
 const event_registration_module_1 = require("./event-registration/event-registration.module");
-const event_registration_entity_1 = require("./event-registration/entities/event-registration.entity");
 const survey_module_1 = require("./survey/survey.module");
-const survey_response_entity_1 = require("./survey/entities/survey-response.entity");
 const analytics_module_1 = require("./analytics/analytics.module");
+const data_source_1 = require("./database/data-source");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -38,16 +31,7 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
             auth_module_1.AuthModule,
-            typeorm_1.TypeOrmModule.forRoot({
-                type: 'mysql',
-                host: process.env.DB_HOST || 'localhost',
-                port: Number(process.env.DB_PORT) || 3306,
-                database: process.env.DB_DATABASE || 'db',
-                username: process.env.DB_USERNAME || 'root',
-                password: process.env.DB_PASSWORD || 'root',
-                entities: [training_entity_1.Training, user_entity_1.User, enrollment_entity_1.Enrollment, event_entity_1.Event, tournament_bracket_entity_1.TournamentBracket, strava_entity_1.Strava, event_registration_entity_1.EventRegistration, survey_response_entity_1.SurveyResponse],
-                synchronize: true,
-            }),
+            typeorm_1.TypeOrmModule.forRoot(data_source_1.dataSourceOptions),
             training_module_1.TrainingModule,
             user_module_1.UserModule,
             enrollment_module_1.EnrollmentModule,

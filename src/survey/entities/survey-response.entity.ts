@@ -13,7 +13,7 @@ export class SurveyResponse {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Training, { eager: true })
+  @ManyToOne(() => Training, { eager: true, onDelete: 'CASCADE' })
   training: Training;
 
   @ManyToOne(() => User, { eager: true })

@@ -20,6 +20,7 @@ export class Enrollment {
 
   @ManyToOne(() => Training, (training) => training.enrollments, {
     eager: true,
+    onDelete: 'CASCADE',
   })
   training: Training;
 
