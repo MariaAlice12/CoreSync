@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Training = void 0;
+exports.NIVEIS_TREINO = exports.Training = void 0;
 const enrollment_entity_1 = require("../../enrollment/entities/enrollment.entity");
 const user_entity_1 = require("../../user/entities/user.entity");
 const typeorm_1 = require("typeorm");
@@ -45,6 +45,14 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Training.prototype, "active", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 20, default: 'iniciante' }),
+    __metadata("design:type", String)
+], Training.prototype, "level", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], Training.prototype, "campus", void 0);
+__decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
 ], Training.prototype, "maxStudents", void 0);
@@ -71,4 +79,9 @@ __decorate([
 exports.Training = Training = __decorate([
     (0, typeorm_1.Entity)()
 ], Training);
+exports.NIVEIS_TREINO = [
+    'iniciante',
+    'intermediario',
+    'avancado',
+];
 //# sourceMappingURL=training.entity.js.map

@@ -33,6 +33,12 @@ export class Training {
   @Column({ default: true })
   active: boolean;
 
+  @Column({ type: 'varchar', length: 20, default: 'iniciante' })
+  level: NivelTreino;
+
+  @Column({ type: 'varchar', nullable: true })
+  campus: string | null;
+
   @Column()
   maxStudents: number;
 
@@ -51,3 +57,10 @@ export class Training {
   @UpdateDateColumn()
   updatedAt: Date;
 }
+
+export const NIVEIS_TREINO = [
+  'iniciante',
+  'intermediario',
+  'avancado',
+] as const;
+export type NivelTreino = (typeof NIVEIS_TREINO)[number];

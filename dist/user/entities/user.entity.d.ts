@@ -7,6 +7,9 @@ export declare class User {
     userType: TipoUser;
     telephone: string;
     email: string;
+    course: string | null;
+    shift: Turno | null;
+    campus: string | null;
     password: string;
     enrollments: Enrollment[];
     events: Event[];
@@ -15,3 +18,5 @@ export declare class User {
     updatedAt: Date;
 }
 export type TipoUser = 'aluno' | 'professor' | 'admin';
+export declare const TURNOS: readonly ["manha", "tarde", "noite", "integral"];
+export type Turno = (typeof TURNOS)[number];

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateTrainingDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const training_entity_1 = require("../entities/training.entity");
 class CreateTrainingDto {
 }
 exports.CreateTrainingDto = CreateTrainingDto;
@@ -51,6 +52,26 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], CreateTrainingDto.prototype, "active", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        enum: training_entity_1.NIVEIS_TREINO,
+        default: 'iniciante',
+        description: 'Grau de maturidade do atleta no esporte',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(training_entity_1.NIVEIS_TREINO),
+    __metadata("design:type", String)
+], CreateTrainingDto.prototype, "level", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        required: false,
+        description: 'Campus / unidade',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateTrainingDto.prototype, "campus", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: Number }),
     (0, class_validator_1.IsInt)(),

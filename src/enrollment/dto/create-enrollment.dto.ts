@@ -7,10 +7,16 @@ export class CreateEnrollmentDto {
   @IsPositive()
   trainingId: number;
 
-  @ApiProperty({ type: Number })
+  @ApiProperty({
+    type: Number,
+    required: false,
+    description:
+      'Ignorado para alunos (usa o usuário logado); admin/professor podem matricular outro aluno',
+  })
+  @IsOptional()
   @IsInt()
   @IsPositive()
-  userId: number;
+  userId?: number;
 
   @ApiProperty({ type: Boolean, default: true })
   @IsBoolean()

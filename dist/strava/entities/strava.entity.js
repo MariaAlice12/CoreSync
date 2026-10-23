@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Strava = void 0;
+const user_entity_1 = require("../../user/entities/user.entity");
 const typeorm_1 = require("typeorm");
 let Strava = class Strava {
 };
@@ -18,6 +19,10 @@ __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
 ], Strava.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { nullable: true, onDelete: 'CASCADE' }),
+    __metadata("design:type", Object)
+], Strava.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
@@ -58,6 +63,18 @@ __decorate([
     (0, typeorm_1.Column)('float', { nullable: true }),
     __metadata("design:type", Number)
 ], Strava.prototype, "maxSpeed", void 0);
+__decorate([
+    (0, typeorm_1.Column)('float', { nullable: true }),
+    __metadata("design:type", Object)
+], Strava.prototype, "averageHeartrate", void 0);
+__decorate([
+    (0, typeorm_1.Column)('float', { nullable: true }),
+    __metadata("design:type", Object)
+], Strava.prototype, "maxHeartrate", void 0);
+__decorate([
+    (0, typeorm_1.Column)('float', { nullable: true }),
+    __metadata("design:type", Object)
+], Strava.prototype, "averageCadence", void 0);
 __decorate([
     (0, typeorm_1.Column)('timestamp'),
     __metadata("design:type", Date)

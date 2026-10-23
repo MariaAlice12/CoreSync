@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { TournamentBracketService } from './tournament-bracket.service';
 import { CreateTournamentBracketDto } from './dto/create-tournament-bracket.dto';
@@ -17,7 +18,11 @@ import {
   ApiTags,
   ApiBody,
   ApiResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Chaves de Torneios')
 @Controller('tournament-bracket')
@@ -26,6 +31,9 @@ export class TournamentBracketController {
     private readonly tournamentBracketService: TournamentBracketService,
   ) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'professor')
+  @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Criar nova chave' })
   @ApiBody({ type: CreateTournamentBracketDto })
@@ -53,6 +61,9 @@ export class TournamentBracketController {
     return this.tournamentBracketService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'professor')
+  @ApiBearerAuth()
   @Patch(':id')
   @ApiOperation({ summary: 'Atualizar uma chave' })
   @ApiParam({ name: 'id', type: String, description: 'UUID da chave' })
@@ -65,6 +76,9 @@ export class TournamentBracketController {
     return this.tournamentBracketService.update(id, updateTournamentBracketDto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'professor')
+  @ApiBearerAuth()
   @Delete(':id')
   @ApiOperation({ summary: 'Remover uma chave' })
   @ApiParam({ name: 'id', type: String, description: 'UUID da chave' })

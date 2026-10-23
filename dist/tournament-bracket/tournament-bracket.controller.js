@@ -18,6 +18,9 @@ const tournament_bracket_service_1 = require("./tournament-bracket.service");
 const create_tournament_bracket_dto_1 = require("./dto/create-tournament-bracket.dto");
 const update_tournament_bracket_dto_1 = require("./dto/update-tournament-bracket.dto");
 const swagger_1 = require("@nestjs/swagger");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
+const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 let TournamentBracketController = class TournamentBracketController {
     constructor(tournamentBracketService) {
         this.tournamentBracketService = tournamentBracketService;
@@ -40,6 +43,9 @@ let TournamentBracketController = class TournamentBracketController {
 };
 exports.TournamentBracketController = TournamentBracketController;
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'professor'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Criar nova chave' }),
     (0, swagger_1.ApiBody)({ type: create_tournament_bracket_dto_1.CreateTournamentBracketDto }),
@@ -72,6 +78,9 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TournamentBracketController.prototype, "findOne", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'professor'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Atualizar uma chave' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: String, description: 'UUID da chave' }),
@@ -84,6 +93,9 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TournamentBracketController.prototype, "update", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin', 'professor'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Delete)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Remover uma chave' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: String, description: 'UUID da chave' }),

@@ -25,14 +25,74 @@ let EnrollmentService = class EnrollmentService {
         this.userService = userService;
         this.trainingService = trainingService;
     }
-    async create(dto) {
-        const user = await this.userService.findOne(dto.userId);
+    async assertHasVacancy(training) {
+        const active = await this.enrollmentRepo.count({
+            where: { training: { id: training.id }, active: true },
+        });
+        if (active >= training.maxStudents) {
+            throw new common_1.ConflictException(`Treino de ${training.modality} está lotado (${training.maxStudents} vagas)`);
+        }
+    }
+    assertCanManage(enrollment, currentUser) {
+        if (currentUser.userType === 'admin')
+            return;
+        if (enrollment.user.id === currentUser.id)
+            return;
+        if (currentUser.userType === 'professor' &&
+            enrollment.training.professor?.id === currentUser.id) {
+            return;
+        }
+        throw new common_1.ForbiddenException('Você não pode alterar esta matrícula');
+    }
+    async create(dto, currentUser) {
+        const userId = currentUser.userType === 'aluno' || !dto.userId
+            ? currentUser.id
+            : dto.userId;
+        const user = await this.userService.findOne(userId);
         const training = await this.trainingService.findOne(dto.trainingId);
-        const enrollment = this.enrollmentRepo.create({ ...dto, user, training });
+        if (!training.active) {
+            throw new common_1.BadRequestException('Este treino está desativado');
+        }
+        const existing = await this.enrollmentRepo.findOne({
+            where: { user: { id: userId }, training: { id: training.id } },
+        });
+        if (existing?.active) {
+            throw new common_1.ConflictException('Usuário já está matriculado neste treino');
+        }
+        await this.assertHasVacancy(training);
+        if (existing) {
+            existing.active = true;
+            return this.enrollmentRepo.save(existing);
+        }
+        const enrollment = this.enrollmentRepo.create({
+            user,
+            training,
+            active: dto.active ?? true,
+        });
         return this.enrollmentRepo.save(enrollment);
     }
-    findAll() {
-        return this.enrollmentRepo.find();
+    findAll(currentUser, filters = {}) {
+        const where = {};
+        const userWhere = {};
+        if (currentUser.userType === 'aluno')
+            userWhere.id = currentUser.id;
+        if (filters.course)
+            userWhere.course = filters.course;
+        if (filters.shift)
+            userWhere.shift = filters.shift;
+        if (Object.keys(userWhere).length)
+            where.user = userWhere;
+        if (filters.trainingId)
+            where.training = { id: filters.trainingId };
+        if (filters.active !== undefined)
+            where.active = filters.active;
+        return this.enrollmentRepo.find({ where, order: { createdAt: 'DESC' } });
+    }
+    findForUser(userId) {
+        return this.enrollmentRepo.find({
+            where: { user: { id: userId } },
+            order: { createdAt: 'DESC' },
+        });
     }
     async findOne(id) {
         const enrollment = await this.enrollmentRepo.findOne({ where: { id } });
@@ -40,17 +100,33 @@ let EnrollmentService = class EnrollmentService {
             throw new common_1.NotFoundException(`Matrícula #${id} não encontrada`);
         return enrollment;
     }
-    async update(id, dto) {
-        await this.findOne(id);
-        return this.enrollmentRepo.update(id, dto);
+    async update(id, dto, currentUser) {
+        const enrollment = await this.findOne(id);
+        this.assertCanManage(enrollment, currentUser);
+        if (dto.active && !enrollment.active) {
+            await this.assertHasVacancy(enrollment.training);
+        }
+        enrollment.active = dto.active;
+        return this.enrollmentRepo.save(enrollment);
     }
-    async remove(id) {
-        await this.findOne(id);
+    async remove(id, currentUser) {
+        const enrollment = await this.findOne(id);
+        this.assertCanManage(enrollment, currentUser);
         return this.enrollmentRepo.delete(id);
     }
     async existsForUserAndTraining(userId, trainingId) {
         const count = await this.enrollmentRepo.count({
             where: { user: { id: userId }, training: { id: trainingId } },
+        });
+        return count > 0;
+    }
+    async isActivelyEnrolled(userId, trainingId) {
+        const count = await this.enrollmentRepo.count({
+            where: {
+                user: { id: userId },
+                training: { id: trainingId },
+                active: true,
+            },
         });
         return count > 0;
     }

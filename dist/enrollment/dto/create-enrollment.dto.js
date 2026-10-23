@@ -22,7 +22,12 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateEnrollmentDto.prototype, "trainingId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: Number }),
+    (0, swagger_1.ApiProperty)({
+        type: Number,
+        required: false,
+        description: 'Ignorado para alunos (usa o usuário logado); admin/professor podem matricular outro aluno',
+    }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.IsPositive)(),
     __metadata("design:type", Number)

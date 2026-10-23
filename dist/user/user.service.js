@@ -22,7 +22,13 @@ let UserService = class UserService {
     constructor(userRepo) {
         this.userRepo = userRepo;
     }
-    async create(dto) {
+    async create(dto, currentUser) {
+        if (dto.userType === 'admin' && currentUser?.userType !== 'admin') {
+            throw new common_1.ForbiddenException('Apenas administradores podem cadastrar outros administradores');
+        }
+        if (await this.findByEmail(dto.email)) {
+            throw new common_1.ConflictException('E-mail já cadastrado');
+        }
         const hashed = await bcrypt.hash(dto.password, 10);
         const user = this.userRepo.create({ ...dto, password: hashed });
         return this.userRepo.save(user);
@@ -30,8 +36,29 @@ let UserService = class UserService {
     findByEmail(email) {
         return this.userRepo.findOneBy({ email });
     }
-    findAll() {
-        return this.userRepo.find();
+    findAll(filters = {}) {
+        const where = {};
+        if (filters.userType)
+            where.userType = filters.userType;
+        if (filters.course)
+            where.course = filters.course;
+        if (filters.shift)
+            where.shift = filters.shift;
+        if (filters.campus)
+            where.campus = filters.campus;
+        return this.userRepo.find({ where, order: { name: 'ASC' } });
+    }
+    findByIds(ids) {
+        if (ids.length === 0)
+            return Promise.resolve([]);
+        return this.userRepo.findBy({ id: (0, typeorm_1.In)(ids) });
+    }
+    async findIdsByType(userType) {
+        const users = await this.userRepo.find({
+            select: { id: true },
+            where: { userType },
+        });
+        return users.map((u) => u.id);
     }
     async findOne(id) {
         const user = await this.userRepo.findOneBy({ id });
@@ -39,9 +66,25 @@ let UserService = class UserService {
             throw new common_1.NotFoundException(`Usuário #${id} não encontrado`);
         return user;
     }
-    async update(id, dto) {
-        await this.findOne(id);
-        return this.userRepo.update(id, dto);
+    async update(id, dto, currentUser) {
+        const isAdmin = currentUser.userType === 'admin';
+        if (!isAdmin && currentUser.id !== id) {
+            throw new common_1.ForbiddenException('Você só pode alterar o próprio perfil');
+        }
+        if (dto.userType !== undefined && !isAdmin) {
+            throw new common_1.ForbiddenException('Somente administradores podem alterar o tipo de usuário');
+        }
+        const user = await this.findOne(id);
+        if (dto.email &&
+            dto.email !== user.email &&
+            (await this.findByEmail(dto.email))) {
+            throw new common_1.ConflictException('E-mail já cadastrado');
+        }
+        const changes = { ...dto };
+        if (dto.password)
+            changes.password = await bcrypt.hash(dto.password, 10);
+        Object.assign(user, changes);
+        return this.userRepo.save(user);
     }
     async remove(id) {
         await this.findOne(id);

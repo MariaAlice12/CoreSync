@@ -10,18 +10,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateEnrollmentDto = void 0;
-const mapped_types_1 = require("@nestjs/mapped-types");
-const create_enrollment_dto_1 = require("./create-enrollment.dto");
 const swagger_1 = require("@nestjs/swagger");
-class UpdateEnrollmentDto extends (0, mapped_types_1.PartialType)(create_enrollment_dto_1.CreateEnrollmentDto) {
+const class_validator_1 = require("class-validator");
+class UpdateEnrollmentDto {
 }
 exports.UpdateEnrollmentDto = UpdateEnrollmentDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: Number }),
-    __metadata("design:type", Number)
-], UpdateEnrollmentDto.prototype, "id", void 0);
-__decorate([
     (0, swagger_1.ApiProperty)({ type: Boolean }),
+    (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateEnrollmentDto.prototype, "active", void 0);
 //# sourceMappingURL=update-enrollment.dto.js.map

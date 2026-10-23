@@ -1,11 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/swagger';
 import { CreateEventDto } from './create-event.dto';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
 
-export class UpdateEventDto extends PartialType(CreateEventDto) {
-  @ApiProperty({ type: String, required: false })
-  @IsOptional()
-  @IsString()
-  hour?: string;
-}
+export class UpdateEventDto extends PartialType(CreateEventDto) {}

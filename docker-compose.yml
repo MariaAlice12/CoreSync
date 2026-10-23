@@ -47,6 +47,17 @@ services:
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env}
       PORT: 8080
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      API_PUBLIC_URL: ${API_PUBLIC_URL:-http://localhost:8080}
+      STRAVA_CLIENT_ID: ${STRAVA_CLIENT_ID:-}
+      STRAVA_CLIENT_SECRET: ${STRAVA_CLIENT_SECRET:-}
+      STRAVA_REDIRECT_URI: ${STRAVA_REDIRECT_URI:-}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-}
+      AWS_REGION: ${AWS_REGION:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_S3_PUBLIC_URL: ${AWS_S3_PUBLIC_URL:-}
+    volumes:
+      - uploads:/app/uploads
     ports:
       - '${PORT:-8080}:8080'
     depends_on:
@@ -55,3 +66,4 @@ services:
 
 volumes:
   db_data:
+  uploads:

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TrainingController = void 0;
 const common_1 = require("@nestjs/common");
 const training_service_1 = require("./training.service");
+const training_entity_1 = require("./entities/training.entity");
 const create_training_dto_1 = require("./dto/create-training.dto");
 const update_training_dto_1 = require("./dto/update-training.dto");
 const swagger_1 = require("@nestjs/swagger");
@@ -27,8 +28,14 @@ let TrainingController = class TrainingController {
     create(createTrainingDto, user) {
         return this.trainingService.create(createTrainingDto, user);
     }
-    findAll() {
-        return this.trainingService.findAll();
+    findAll(modality, level, professorId, campus, active) {
+        return this.trainingService.findAll({
+            modality,
+            level,
+            campus,
+            professorId: professorId ? Number(professorId) : undefined,
+            active: active === undefined ? undefined : active === 'true',
+        });
     }
     findOne(id) {
         return this.trainingService.findOne(id);
@@ -36,8 +43,8 @@ let TrainingController = class TrainingController {
     update(id, updateTrainingDto, user) {
         return this.trainingService.update(id, updateTrainingDto, user);
     }
-    remove(id) {
-        return this.trainingService.remove(id);
+    remove(id, user) {
+        return this.trainingService.remove(id, user);
     }
 };
 exports.TrainingController = TrainingController;
@@ -56,13 +63,25 @@ __decorate([
 ], TrainingController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Listar todos os treinos' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Listar treinos (filtros por modalidade, nível, professor, campus e status)',
+    }),
+    (0, swagger_1.ApiQuery)({ name: 'modality', required: false }),
+    (0, swagger_1.ApiQuery)({ name: 'level', required: false, enum: training_entity_1.NIVEIS_TREINO }),
+    (0, swagger_1.ApiQuery)({ name: 'professorId', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'campus', required: false }),
+    (0, swagger_1.ApiQuery)({ name: 'active', required: false, type: Boolean }),
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'Lista de treinos retornada com sucesso',
     }),
+    __param(0, (0, common_1.Query)('modality')),
+    __param(1, (0, common_1.Query)('level')),
+    __param(2, (0, common_1.Query)('professorId')),
+    __param(3, (0, common_1.Query)('campus')),
+    __param(4, (0, common_1.Query)('active')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], TrainingController.prototype, "findAll", null);
 __decorate([
@@ -100,8 +119,9 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Treino removido com sucesso' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Treino não encontrado' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", void 0)
 ], TrainingController.prototype, "remove", null);
 exports.TrainingController = TrainingController = __decorate([

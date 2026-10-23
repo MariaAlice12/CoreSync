@@ -1,11 +1,8 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateEnrollmentDto } from './create-enrollment.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean } from 'class-validator';
 
-export class UpdateEnrollmentDto extends PartialType(CreateEnrollmentDto) {
-  @ApiProperty({ type: Number })
-  id: number;
-
+export class UpdateEnrollmentDto {
   @ApiProperty({ type: Boolean })
+  @IsBoolean()
   active: boolean;
 }

@@ -7,9 +7,11 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { TrainingService } from './training.service';
+import { NIVEIS_TREINO } from './entities/training.entity';
 import { CreateTrainingDto } from './dto/create-training.dto';
 import { UpdateTrainingDto } from './dto/update-training.dto';
 import {
@@ -19,6 +21,7 @@ import {
   ApiParam,
   ApiBody,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
@@ -45,13 +48,33 @@ export class TrainingController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar todos os treinos' })
+  @ApiOperation({
+    summary:
+      'Listar treinos (filtros por modalidade, nível, professor, campus e status)',
+  })
+  @ApiQuery({ name: 'modality', required: false })
+  @ApiQuery({ name: 'level', required: false, enum: NIVEIS_TREINO })
+  @ApiQuery({ name: 'professorId', required: false, type: Number })
+  @ApiQuery({ name: 'campus', required: false })
+  @ApiQuery({ name: 'active', required: false, type: Boolean })
   @ApiResponse({
     status: 200,
     description: 'Lista de treinos retornada com sucesso',
   })
-  findAll() {
-    return this.trainingService.findAll();
+  findAll(
+    @Query('modality') modality?: string,
+    @Query('level') level?: string,
+    @Query('professorId') professorId?: string,
+    @Query('campus') campus?: string,
+    @Query('active') active?: string,
+  ) {
+    return this.trainingService.findAll({
+      modality,
+      level,
+      campus,
+      professorId: professorId ? Number(professorId) : undefined,
+      active: active === undefined ? undefined : active === 'true',
+    });
   }
 
   @Get(':id')
@@ -85,7 +108,10 @@ export class TrainingController {
   @ApiParam({ name: 'id', type: Number, description: 'ID do treino' })
   @ApiResponse({ status: 200, description: 'Treino removido com sucesso' })
   @ApiResponse({ status: 404, description: 'Treino não encontrado' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.trainingService.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return this.trainingService.remove(id, user);
   }
 }

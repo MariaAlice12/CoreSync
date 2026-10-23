@@ -17,7 +17,10 @@ export class EventRegistration {
   @ManyToOne(() => User, (user) => user.eventRegistrations, { eager: true })
   user: User;
 
-  @ManyToOne(() => Event, (event) => event.registrations, { eager: true })
+  @ManyToOne(() => Event, (event) => event.registrations, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
   event: Event;
 
   @Column({ default: true })

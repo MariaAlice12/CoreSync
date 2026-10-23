@@ -1,4 +1,5 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -8,6 +9,8 @@ import { LoginDto } from './dto/login.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // Limita tentativas de login (10 por minuto por IP) contra força bruta.
+  @UseGuards(ThrottlerGuard)
   @Post('login')
   @ApiOperation({ summary: 'Login do usuário' })
   @ApiBody({ type: LoginDto })

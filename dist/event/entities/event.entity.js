@@ -13,6 +13,7 @@ exports.Event = void 0;
 const user_entity_1 = require("../../user/entities/user.entity");
 const tournament_bracket_entity_1 = require("../../tournament-bracket/entities/tournament-bracket.entity");
 const event_registration_entity_1 = require("../../event-registration/entities/event-registration.entity");
+const event_photo_entity_1 = require("./event-photo.entity");
 const typeorm_1 = require("typeorm");
 let Event = class Event {
 };
@@ -22,13 +23,26 @@ __decorate([
     __metadata("design:type", Number)
 ], Event.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.events),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.events, { eager: true }),
     __metadata("design:type", user_entity_1.User)
 ], Event.prototype, "user", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => user_entity_1.User, { eager: true }),
+    (0, typeorm_1.JoinTable)({
+        name: 'event_organizers',
+        joinColumn: { name: 'eventId', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'userId', referencedColumnName: 'id' },
+    }),
+    __metadata("design:type", Array)
+], Event.prototype, "organizers", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => event_registration_entity_1.EventRegistration, (reg) => reg.event),
     __metadata("design:type", Array)
 ], Event.prototype, "registrations", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => event_photo_entity_1.EventPhoto, (photo) => photo.event),
+    __metadata("design:type", Array)
+], Event.prototype, "photos", void 0);
 __decorate([
     (0, typeorm_1.Column)({}),
     __metadata("design:type", String)
@@ -45,6 +59,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Date)
 ], Event.prototype, "date", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], Event.prototype, "location", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => tournament_bracket_entity_1.TournamentBracket, {
         nullable: true,

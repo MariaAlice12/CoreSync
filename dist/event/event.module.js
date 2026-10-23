@@ -12,13 +12,28 @@ const event_service_1 = require("./event.service");
 const event_controller_1 = require("./event.controller");
 const typeorm_1 = require("@nestjs/typeorm");
 const event_entity_1 = require("./entities/event.entity");
+const event_photo_entity_1 = require("./entities/event-photo.entity");
 const tournament_bracket_entity_1 = require("../tournament-bracket/entities/tournament-bracket.entity");
+const event_registration_entity_1 = require("../event-registration/entities/event-registration.entity");
+const user_module_1 = require("../user/user.module");
+const notification_module_1 = require("../notification/notification.module");
+const storage_module_1 = require("../storage/storage.module");
 let EventModule = class EventModule {
 };
 exports.EventModule = EventModule;
 exports.EventModule = EventModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([event_entity_1.Event, tournament_bracket_entity_1.TournamentBracket])],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([
+                event_entity_1.Event,
+                event_photo_entity_1.EventPhoto,
+                tournament_bracket_entity_1.TournamentBracket,
+                event_registration_entity_1.EventRegistration,
+            ]),
+            user_module_1.UserModule,
+            notification_module_1.NotificationModule,
+            storage_module_1.StorageModule,
+        ],
         controllers: [event_controller_1.EventController],
         providers: [event_service_1.EventService],
         exports: [event_service_1.EventService],

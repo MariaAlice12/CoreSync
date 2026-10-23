@@ -28,6 +28,15 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  course: string | null;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  shift: Turno | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  campus: string | null;
+
   @Exclude()
   @Column()
   password: string;
@@ -49,3 +58,6 @@ export class User {
 }
 
 export type TipoUser = 'aluno' | 'professor' | 'admin';
+
+export const TURNOS = ['manha', 'tarde', 'noite', 'integral'] as const;
+export type Turno = (typeof TURNOS)[number];

@@ -8,6 +8,8 @@ export declare class Training {
     weekdays: string[];
     description: string;
     active: boolean;
+    level: NivelTreino;
+    campus: string | null;
     maxStudents: number;
     minStudents: number;
     professor: User | null;
@@ -15,3 +17,5 @@ export declare class Training {
     createdAt: Date;
     updatedAt: Date;
 }
+export declare const NIVEIS_TREINO: readonly ["iniciante", "intermediario", "avancado"];
+export type NivelTreino = (typeof NIVEIS_TREINO)[number];

@@ -7,6 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
+require("dotenv/config");
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
@@ -22,6 +23,11 @@ const strava_module_1 = require("./strava/strava.module");
 const event_registration_module_1 = require("./event-registration/event-registration.module");
 const survey_module_1 = require("./survey/survey.module");
 const analytics_module_1 = require("./analytics/analytics.module");
+const notification_module_1 = require("./notification/notification.module");
+const attendance_module_1 = require("./attendance/attendance.module");
+const serve_static_1 = require("@nestjs/serve-static");
+const throttler_1 = require("@nestjs/throttler");
+const storage_service_1 = require("./storage/storage.service");
 const data_source_1 = require("./database/data-source");
 let AppModule = class AppModule {
 };
@@ -30,6 +36,12 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
+            serve_static_1.ServeStaticModule.forRoot({
+                rootPath: storage_service_1.LOCAL_UPLOAD_DIR,
+                serveRoot: '/uploads',
+                serveStaticOptions: { index: false },
+            }),
+            throttler_1.ThrottlerModule.forRoot([{ ttl: 60_000, limit: 10 }]),
             auth_module_1.AuthModule,
             typeorm_1.TypeOrmModule.forRoot(data_source_1.dataSourceOptions),
             training_module_1.TrainingModule,
@@ -41,6 +53,8 @@ exports.AppModule = AppModule = __decorate([
             event_registration_module_1.EventRegistrationModule,
             survey_module_1.SurveyModule,
             analytics_module_1.AnalyticsModule,
+            notification_module_1.NotificationModule,
+            attendance_module_1.AttendanceModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

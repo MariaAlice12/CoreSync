@@ -1,17 +1,34 @@
 import { Repository } from 'typeorm';
-import { Strava } from './entities/strava.entity';
+import { JwtService } from '@nestjs/jwt';
 import { HttpService } from '@nestjs/axios';
+import { Strava } from './entities/strava.entity';
+import { StravaAccount } from './entities/strava-account.entity';
+import { StravaActivityDto } from './dto/create-strava.dto';
 export declare class StravaService {
     private readonly httpService;
+    private readonly jwtService;
     private readonly activityRepo;
-    constructor(httpService: HttpService, activityRepo: Repository<Strava>);
+    private readonly accountRepo;
+    private readonly logger;
+    constructor(httpService: HttpService, jwtService: JwtService, activityRepo: Repository<Strava>, accountRepo: Repository<StravaAccount>);
     private readonly baseUrl;
-    private accessToken;
-    private refreshToken;
     private readonly clientId;
     private readonly clientSecret;
-    private expiresAt;
+    private readonly redirectUri;
+    frontendUrl(path: string): string;
+    getAuthorizeUrl(userId: number): string;
+    handleCallback(code: string, state: string, scope?: string): Promise<StravaAccount>;
+    status(userId: number): Promise<{
+        configured: boolean;
+        connected: boolean;
+        athleteName: string | null;
+        connectedAt: Date | null;
+    }>;
+    disconnect(userId: number): Promise<{
+        connected: boolean;
+    }>;
     private ensureAccessToken;
-    findAll(): Promise<Strava[]>;
-    syncActivities(perPage?: number): Promise<Strava[]>;
+    static toDto(activity: Strava): StravaActivityDto;
+    findForUser(userId: number): Promise<StravaActivityDto[]>;
+    syncActivities(userId: number, perPage?: number): Promise<StravaActivityDto[]>;
 }

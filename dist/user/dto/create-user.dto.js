@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateUserDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const user_entity_1 = require("../entities/user.entity");
 class CreateUserDto {
 }
 exports.CreateUserDto = CreateUserDto;
@@ -41,4 +42,26 @@ __decorate([
     (0, swagger_1.ApiProperty)({ type: String }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "telephone", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, swagger_1.ApiProperty)({ type: String, required: false, description: 'Curso do aluno' }),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "course", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(user_entity_1.TURNOS),
+    (0, swagger_1.ApiProperty)({ type: String, enum: user_entity_1.TURNOS, required: false }),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "shift", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        required: false,
+        description: 'Campus / unidade',
+    }),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "campus", void 0);
 //# sourceMappingURL=create-user.dto.js.map

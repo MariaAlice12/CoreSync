@@ -35,11 +35,37 @@ __decorate([
     __metadata("design:type", String)
 ], CreateEventDto.prototype, "image", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: String, required: false }),
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        required: false,
+        description: 'Data e horário (ISO 8601)',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateEventDto.prototype, "date", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        required: false,
+        description: 'Local do evento',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateEventDto.prototype, "location", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: [Number],
+        required: false,
+        description: 'IDs dos organizadores (padrão: quem criou o evento)',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsInt)({ each: true }),
+    (0, class_validator_1.IsPositive)({ each: true }),
+    __metadata("design:type", Array)
+], CreateEventDto.prototype, "organizerIds", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ enum: create_tournament_bracket_dto_1.BracketType, required: false }),
     (0, class_validator_1.IsOptional)(),

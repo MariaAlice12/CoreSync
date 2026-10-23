@@ -10,15 +10,21 @@ exports.StravaModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const strava_entity_1 = require("./entities/strava.entity");
+const strava_account_entity_1 = require("./entities/strava-account.entity");
 const strava_service_1 = require("./strava.service");
 const strava_controller_1 = require("./strava.controller");
 const axios_1 = require("@nestjs/axios");
+const auth_module_1 = require("../auth/auth.module");
 let StravaModule = class StravaModule {
 };
 exports.StravaModule = StravaModule;
 exports.StravaModule = StravaModule = __decorate([
     (0, common_1.Module)({
-        imports: [axios_1.HttpModule, typeorm_1.TypeOrmModule.forFeature([strava_entity_1.Strava])],
+        imports: [
+            axios_1.HttpModule,
+            auth_module_1.AuthModule,
+            typeorm_1.TypeOrmModule.forFeature([strava_entity_1.Strava, strava_account_entity_1.StravaAccount]),
+        ],
         controllers: [strava_controller_1.StravaController],
         providers: [strava_service_1.StravaService],
         exports: [strava_service_1.StravaService],

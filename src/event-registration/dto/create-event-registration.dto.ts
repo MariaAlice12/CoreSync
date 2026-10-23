@@ -7,10 +7,15 @@ export class CreateEventRegistrationDto {
   @IsPositive()
   eventId: number;
 
-  @ApiProperty({ type: Number })
+  @ApiProperty({
+    type: Number,
+    required: false,
+    description: 'Ignorado para alunos (usa o usuário logado)',
+  })
+  @IsOptional()
   @IsInt()
   @IsPositive()
-  userId: number;
+  userId?: number;
 
   @ApiProperty({ type: Boolean, default: true })
   @IsBoolean()

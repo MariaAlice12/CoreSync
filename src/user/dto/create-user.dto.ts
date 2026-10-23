@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsIn, IsNotEmpty, IsString, MinLength } from 'class-validator';
-import { TipoUser } from '../entities/user.entity';
+import {
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { TipoUser, TURNOS, Turno } from '../entities/user.entity';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -23,4 +30,23 @@ export class CreateUserDto {
   @IsNotEmpty()
   @ApiProperty({ type: String })
   telephone: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ type: String, required: false, description: 'Curso do aluno' })
+  course?: string;
+
+  @IsOptional()
+  @IsIn(TURNOS)
+  @ApiProperty({ type: String, enum: TURNOS, required: false })
+  shift?: Turno;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: 'Campus / unidade',
+  })
+  campus?: string;
 }

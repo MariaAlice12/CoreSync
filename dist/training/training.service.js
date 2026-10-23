@@ -18,10 +18,15 @@ const training_entity_1 = require("./entities/training.entity");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_service_1 = require("../user/user.service");
+const enrollment_entity_1 = require("../enrollment/entities/enrollment.entity");
+const notification_service_1 = require("../notification/notification.service");
+const SCHEDULE_FIELDS = ['hour', 'address', 'weekdays', 'active'];
 let TrainingService = class TrainingService {
-    constructor(trainingRepo, userService) {
+    constructor(trainingRepo, enrollmentRepo, userService, notificationService) {
         this.trainingRepo = trainingRepo;
+        this.enrollmentRepo = enrollmentRepo;
         this.userService = userService;
+        this.notificationService = notificationService;
     }
     async resolveProfessor(professorId) {
         const professor = await this.userService.findOne(professorId);
@@ -29,6 +34,15 @@ let TrainingService = class TrainingService {
             throw new common_1.BadRequestException(`Usuário #${professorId} não é um professor`);
         }
         return professor;
+    }
+    assertCanManage(training, currentUser) {
+        if (currentUser.userType === 'admin')
+            return;
+        if (currentUser.userType === 'professor' &&
+            training.professor?.id === currentUser.id) {
+            return;
+        }
+        throw new common_1.ForbiddenException('Você só pode alterar treinos dos quais é o professor responsável');
     }
     async create(dto, currentUser) {
         const { professorId, ...rest } = dto;
@@ -45,11 +59,31 @@ let TrainingService = class TrainingService {
             }
             professor = await this.resolveProfessor(professorId);
         }
-        const training = this.trainingRepo.create({ ...rest, professor });
-        return this.trainingRepo.save(training);
+        const training = await this.trainingRepo.save(this.trainingRepo.create({ ...rest, professor }));
+        if (training.active) {
+            const athletes = await this.userService.findIdsByType('aluno');
+            await this.notificationService.notifyUsers(athletes, {
+                type: 'training_created',
+                title: `Novo treino de ${training.modality}`,
+                message: `${training.weekdays.join(', ')} às ${training.hour} — ${training.address}`,
+                link: '/dashboard/atleta',
+            });
+        }
+        return training;
     }
-    findAll() {
-        return this.trainingRepo.find();
+    findAll(filters = {}) {
+        const where = {};
+        if (filters.modality)
+            where.modality = filters.modality;
+        if (filters.level)
+            where.level = filters.level;
+        if (filters.campus)
+            where.campus = filters.campus;
+        if (filters.active !== undefined)
+            where.active = filters.active;
+        if (filters.professorId)
+            where.professor = { id: filters.professorId };
+        return this.trainingRepo.find({ where, order: { modality: 'ASC' } });
     }
     async findOne(id) {
         const training = await this.trainingRepo.findOneBy({ id });
@@ -59,6 +93,7 @@ let TrainingService = class TrainingService {
     }
     async update(id, dto, currentUser) {
         const training = await this.findOne(id);
+        this.assertCanManage(training, currentUser);
         const { professorId, ...rest } = dto;
         if (professorId !== undefined) {
             if (currentUser.userType !== 'admin') {
@@ -66,19 +101,42 @@ let TrainingService = class TrainingService {
             }
             training.professor = await this.resolveProfessor(professorId);
         }
+        const scheduleChanged = SCHEDULE_FIELDS.some((f) => rest[f] !== undefined &&
+            JSON.stringify(rest[f]) !== JSON.stringify(training[f]));
         Object.assign(training, rest);
-        return this.trainingRepo.save(training);
+        const saved = await this.trainingRepo.save(training);
+        if (scheduleChanged) {
+            await this.notificationService.notifyUsers(await this.activeStudentIds(id), {
+                type: 'training_updated',
+                title: `Treino de ${saved.modality} foi alterado`,
+                message: saved.active
+                    ? `Agora: ${saved.weekdays.join(', ')} às ${saved.hour} — ${saved.address}`
+                    : 'O treino foi desativado.',
+                link: '/agenda',
+            });
+        }
+        return saved;
     }
-    async remove(id) {
-        await this.findOne(id);
+    async remove(id, currentUser) {
+        const training = await this.findOne(id);
+        this.assertCanManage(training, currentUser);
         return this.trainingRepo.delete(id);
+    }
+    async activeStudentIds(trainingId) {
+        const enrollments = await this.enrollmentRepo.find({
+            where: { training: { id: trainingId }, active: true },
+        });
+        return enrollments.map((e) => e.user.id);
     }
 };
 exports.TrainingService = TrainingService;
 exports.TrainingService = TrainingService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(training_entity_1.Training)),
+    __param(1, (0, typeorm_1.InjectRepository)(enrollment_entity_1.Enrollment)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        user_service_1.UserService])
+        typeorm_2.Repository,
+        user_service_1.UserService,
+        notification_service_1.NotificationService])
 ], TrainingService);
 //# sourceMappingURL=training.service.js.map

@@ -5,11 +5,19 @@ import { AnalyticsController } from './analytics.controller';
 import { Training } from 'src/training/entities/training.entity';
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { SurveyResponse } from 'src/survey/entities/survey-response.entity';
+import { Attendance } from 'src/attendance/entities/attendance.entity';
+import { Strava } from 'src/strava/entities/strava.entity';
 import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Training, Enrollment, SurveyResponse]),
+    TypeOrmModule.forFeature([
+      Training,
+      Enrollment,
+      SurveyResponse,
+      Attendance,
+      Strava,
+    ]),
     UserModule,
   ],
   controllers: [AnalyticsController],

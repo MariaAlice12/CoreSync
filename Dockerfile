@@ -14,6 +14,8 @@ ENV NODE_ENV=production
 COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+# Fotos de eventos quando o S3 não está configurado (montado como volume)
+RUN mkdir -p /app/uploads && chown node:node /app/uploads
 USER node
 EXPOSE 8080
 CMD ["node", "dist/main"]

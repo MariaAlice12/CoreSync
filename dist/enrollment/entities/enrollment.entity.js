@@ -27,6 +27,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.ManyToOne)(() => training_entity_1.Training, (training) => training.enrollments, {
         eager: true,
+        onDelete: 'CASCADE',
     }),
     __metadata("design:type", training_entity_1.Training)
 ], Enrollment.prototype, "training", void 0);

@@ -1,3 +1,4 @@
+import { NivelTreino } from '../entities/training.entity';
 export declare class CreateTrainingDto {
     modality: string;
     hour: string;
@@ -5,6 +6,8 @@ export declare class CreateTrainingDto {
     weekdays: string[];
     description?: string;
     active?: boolean;
+    level?: NivelTreino;
+    campus?: string;
     maxStudents: number;
     minStudents: number;
     professorId?: number;

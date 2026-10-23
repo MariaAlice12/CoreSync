@@ -4,6 +4,8 @@ export declare class CreateEventDto {
     description: string;
     image?: string;
     date?: string;
+    location?: string;
+    organizerIds?: number[];
     bracketType?: BracketType;
     teamCount?: number;
 }
