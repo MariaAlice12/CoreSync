@@ -132,6 +132,21 @@ Para gerar, rode contra um banco com o schema atual (por exemplo, `docker compos
 
 ---
 
+## Dados de exemplo / Seed
+
+Para avaliar o sistema com volume realista (cerca de 12 semanas de histórico da atlética):
+
+```bash
+npm run seed        # gera (ou regera) os dados de exemplo
+npm run seed:clear  # remove só o que o seed criou
+```
+
+Gera 8 professores, 150 atletas (cursos, turnos e campi variados), 17 treinos, matrículas (com cancelamentos), cerca de 2.200 presenças, registros de desempenho, cerca de 500 atividades do Strava vinculadas aos treinos, 8 eventos (3 com chave de torneio), avaliações e notificações. Os dados são sempre os mesmos (semente fixa) e ficam em usuários com e-mail `@seed.coresync`: o restante do banco não é alterado.
+
+Senha de todos os usuários do seed: `123456`. Exemplos: professora `fernanda.lima@seed.coresync` e atleta `otavio.lima.nascimento@seed.coresync`.
+
+---
+
 ## Variáveis de Ambiente / Environment Variables
 
 Copie `.env.example` para `.env` e preencha os valores:
@@ -547,6 +562,7 @@ Todas as rotas, parâmetros e respostas estão documentados via Swagger/OpenAPI.
 | `npm run test` | Roda os testes unitários |
 | `npm run test:e2e` | Roda os testes end-to-end (API completa com SQLite em memória — não precisa de MySQL) |
 | `npm run test:cov` | Gera relatório de cobertura de testes |
+| `npm run seed` / `seed:clear` | Gera / remove os dados de exemplo |
 | `npm run lint` | Analisa e corrige erros de lint |
 | `npm run format` | Formata o código com Prettier |
 
