@@ -7,6 +7,7 @@ import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { SurveyResponse } from 'src/survey/entities/survey-response.entity';
 import { Attendance } from 'src/attendance/entities/attendance.entity';
 import { Strava } from 'src/strava/entities/strava.entity';
+import { PerformanceRecord } from 'src/performance/entities/performance-record.entity';
 import { UserModule } from 'src/user/user.module';
 
 @Module({
@@ -17,6 +18,7 @@ import { UserModule } from 'src/user/user.module';
       SurveyResponse,
       Attendance,
       Strava,
+      PerformanceRecord,
     ]),
     UserModule,
   ],

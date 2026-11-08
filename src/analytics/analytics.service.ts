@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, In, MoreThanOrEqual, Repository } from 'typeorm';
 import { Training } from 'src/training/entities/training.entity';
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { SurveyResponse } from 'src/survey/entities/survey-response.entity';
@@ -12,6 +12,12 @@ import { Attendance } from 'src/attendance/entities/attendance.entity';
 import { Strava } from 'src/strava/entities/strava.entity';
 import { StravaService } from 'src/strava/strava.service';
 import { UserService } from 'src/user/user.service';
+import { PerformanceRecord } from 'src/performance/entities/performance-record.entity';
+import { toPerformanceSummary } from 'src/performance/performance.service';
+import {
+  matchActivityToSession,
+  toSessionActivity,
+} from 'src/attendance/session-activity';
 import {
   parseISODate,
   toISODate,
@@ -68,6 +74,8 @@ export class AnalyticsService {
     private readonly attendanceRepo: Repository<Attendance>,
     @InjectRepository(Strava)
     private readonly activityRepo: Repository<Strava>,
+    @InjectRepository(PerformanceRecord)
+    private readonly performanceRepo: Repository<PerformanceRecord>,
     private readonly userService: UserService,
   ) {}
 
@@ -342,14 +350,50 @@ export class AnalyticsService {
       }),
     ]);
 
-    // Agrupa presenças pela segunda-feira da semana.
-    const byWeek = new Map<string, number>();
-    for (const a of attendances) {
-      const d = parseISODate(a.date);
+    const records = attendances.length
+      ? await this.performanceRepo.find({
+          where: { attendance: { id: In(attendances.map((a) => a.id)) } },
+          relations: { attendance: true },
+        })
+      : [];
+    const recordByAttendance = new Map(
+      records.map((r) => [r.attendance.id, r]),
+    );
+
+    const weekOf = (date: string) => {
+      const d = parseISODate(date);
       d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-      const week = toISODate(d);
+      return toISODate(d);
+    };
+
+    // Agrupa presenças (e notas do professor) pela segunda-feira da semana.
+    const byWeek = new Map<string, number>();
+    const ratings = new Map<string, number[]>();
+    for (const a of attendances) {
+      const week = weekOf(a.date);
       byWeek.set(week, (byWeek.get(week) ?? 0) + 1);
+      const rating = recordByAttendance.get(a.id)?.rating;
+      if (rating) ratings.set(week, [...(ratings.get(week) ?? []), rating]);
     }
+
+    // Cada sessão com a atividade do Strava do dia e o desempenho registrado.
+    const sessions = attendances
+      .map((a) => {
+        const match = matchActivityToSession(
+          activities,
+          a.date,
+          a.training.hour,
+        );
+        const record = recordByAttendance.get(a.id);
+        return {
+          attendanceId: a.id,
+          date: a.date,
+          training: { id: a.training.id, modality: a.training.modality },
+          activity: match ? toSessionActivity(match) : null,
+          performance: record ? toPerformanceSummary(record) : null,
+        };
+      })
+      .reverse();
 
     const byModality = new Map<string, number>();
     attendances.forEach((a) =>
@@ -394,6 +438,13 @@ export class AnalyticsService {
           count,
         }),
       ),
+      ratingByWeek: [...ratings.entries()].map(([week, list]) => ({
+        week,
+        average:
+          Math.round((list.reduce((t, r) => t + r, 0) / list.length) * 10) / 10,
+        count: list.length,
+      })),
+      sessions,
       activities: activities.map(StravaService.toDto),
     };
   }

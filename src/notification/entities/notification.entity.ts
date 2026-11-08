@@ -13,7 +13,8 @@ export type NotificationType =
   | 'training_updated'
   | 'event_created'
   | 'event_updated'
-  | 'event_photo';
+  | 'event_photo'
+  | 'performance_recorded';
 
 @Entity()
 @Index(['user', 'read'])

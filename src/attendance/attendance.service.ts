@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThanOrEqual, Repository } from 'typeorm';
+import { In, MoreThanOrEqual, Repository } from 'typeorm';
 import { Attendance } from './entities/attendance.entity';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { TrainingService } from 'src/training/training.service';
@@ -15,11 +15,30 @@ import { Training } from 'src/training/entities/training.entity';
 import { User } from 'src/user/entities/user.entity';
 import { CurrentUserPayload } from 'src/auth/decorators/current-user.decorator';
 import { toISODate, trainingHappensOn } from './weekdays';
+import { Strava } from 'src/strava/entities/strava.entity';
+import { PerformanceRecord } from 'src/performance/entities/performance-record.entity';
+import {
+  PerformanceSummary,
+  toPerformanceSummary,
+} from 'src/performance/performance.service';
+import {
+  matchActivityToSession,
+  SessionActivity,
+  toSessionActivity,
+} from './session-activity';
 
 export interface AttendanceSession {
   date: string;
   count: number;
-  attendees: { id: number; name: string; attendanceId: number }[];
+  attendees: {
+    id: number;
+    name: string;
+    attendanceId: number;
+    /** Atividade do Strava do atleta no dia da sessão, se houver */
+    activity: SessionActivity | null;
+    /** Desempenho registrado pelo professor, se houver */
+    performance: PerformanceSummary | null;
+  }[];
 }
 
 @Injectable()
@@ -27,6 +46,10 @@ export class AttendanceService {
   constructor(
     @InjectRepository(Attendance)
     private readonly attendanceRepo: Repository<Attendance>,
+    @InjectRepository(Strava)
+    private readonly activityRepo: Repository<Strava>,
+    @InjectRepository(PerformanceRecord)
+    private readonly performanceRepo: Repository<PerformanceRecord>,
     private readonly trainingService: TrainingService,
     private readonly enrollmentService: EnrollmentService,
   ) {}
@@ -145,6 +168,33 @@ export class AttendanceService {
       order: { date: 'ASC' },
     });
 
+    // Strava e desempenho de todos os confirmados em duas consultas.
+    const userIds = [...new Set(attendances.map((a) => a.user.id))];
+    const [activities, records] = await Promise.all([
+      userIds.length
+        ? this.activityRepo.find({
+            where: { user: { id: In(userIds) } },
+            relations: { user: true },
+          })
+        : Promise.resolve([] as Strava[]),
+      attendances.length
+        ? this.performanceRepo.find({
+            where: { attendance: { id: In(attendances.map((a) => a.id)) } },
+            relations: { attendance: true },
+          })
+        : Promise.resolve([] as PerformanceRecord[]),
+    ]);
+    const activitiesByUser = new Map<number, Strava[]>();
+    for (const act of activities) {
+      if (!act.user) continue;
+      const list = activitiesByUser.get(act.user.id) ?? [];
+      list.push(act);
+      activitiesByUser.set(act.user.id, list);
+    }
+    const recordByAttendance = new Map(
+      records.map((r) => [r.attendance.id, r]),
+    );
+
     const sessions = new Map<string, AttendanceSession>();
     for (const a of attendances) {
       const session = sessions.get(a.date) ?? {
@@ -157,6 +207,17 @@ export class AttendanceService {
         id: a.user.id,
         name: a.user.name,
         attendanceId: a.id,
+        activity: (() => {
+          const match = matchActivityToSession(
+            activitiesByUser.get(a.user.id) ?? [],
+            a.date,
+            training.hour,
+          );
+          return match ? toSessionActivity(match) : null;
+        })(),
+        performance: recordByAttendance.has(a.id)
+          ? toPerformanceSummary(recordByAttendance.get(a.id)!)
+          : null,
       });
       sessions.set(a.date, session);
     }

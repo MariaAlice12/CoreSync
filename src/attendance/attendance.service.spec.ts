@@ -41,6 +41,8 @@ describe('AttendanceService', () => {
     enrollment = { isActivelyEnrolled: jest.fn().mockResolvedValue(true) };
     service = new AttendanceService(
       repo as never,
+      {} as never,
+      {} as never,
       { findOne: jest.fn().mockResolvedValue(training) } as never,
       enrollment as never,
     );

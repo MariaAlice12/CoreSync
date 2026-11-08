@@ -5,10 +5,12 @@ import { AttendanceService } from './attendance.service';
 import { AttendanceController } from './attendance.controller';
 import { TrainingModule } from 'src/training/training.module';
 import { EnrollmentModule } from 'src/enrollment/enrollment.module';
+import { Strava } from 'src/strava/entities/strava.entity';
+import { PerformanceRecord } from 'src/performance/entities/performance-record.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Attendance]),
+    TypeOrmModule.forFeature([Attendance, Strava, PerformanceRecord]),
     TrainingModule,
     EnrollmentModule,
   ],

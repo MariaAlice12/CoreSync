@@ -18,6 +18,7 @@ import { SurveyModule } from './survey/survey.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { NotificationModule } from './notification/notification.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { PerformanceModule } from './performance/performance.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { LOCAL_UPLOAD_DIR } from './storage/storage.service';
@@ -46,6 +47,7 @@ import { dataSourceOptions } from './database/data-source';
     AnalyticsModule,
     NotificationModule,
     AttendanceModule,
+    PerformanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

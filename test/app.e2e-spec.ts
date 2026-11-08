@@ -27,6 +27,7 @@ jest.setTimeout(30_000);
 
 import { AppModule } from '../src/app.module';
 import { UserService } from '../src/user/user.service';
+import { Strava } from '../src/strava/entities/strava.entity';
 
 // Tipos do MySQL que o SQLite não conhece (as entidades já foram carregadas
 // pelo import do AppModule acima).
@@ -353,7 +354,13 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
           date: todayISO,
           count: 1,
           attendees: [
-            { id: ids.ana, name: 'Ana', attendanceId: ids.attendance },
+            {
+              id: ids.ana,
+              name: 'Ana',
+              attendanceId: ids.attendance,
+              activity: null,
+              performance: null,
+            },
           ],
         },
       ]);
@@ -368,6 +375,105 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
         (s: { date: string }) => s.date === todayISO,
       );
       expect(session).toEqual({ date: todayISO, present: 1, ratePct: 100 });
+    });
+  });
+
+  describe('Registro de desempenho e Strava nas sessões', () => {
+    it('aluno não registra desempenho', () =>
+      http
+        .put(`/performance/attendance/${ids.attendance}`)
+        .set(auth('ana'))
+        .send({ rating: 5 })
+        .expect(403));
+
+    it('valida a nota de 1 a 5', () =>
+      http
+        .put(`/performance/attendance/${ids.attendance}`)
+        .set(auth('prof'))
+        .send({ rating: 6 })
+        .expect(400));
+
+    it('professor registra o desempenho e o atleta é notificado', async () => {
+      const res = await http
+        .put(`/performance/attendance/${ids.attendance}`)
+        .set(auth('prof'))
+        .send({
+          rating: 4,
+          notes: 'Boa recepção',
+          metrics: [{ name: 'Saques certos', value: 12, unit: 'un' }],
+        })
+        .expect(200);
+      expect(res.body).toMatchObject({ rating: 4, notes: 'Boa recepção' });
+      ids.performance = res.body.id;
+
+      // Atualizar mantém um único registro
+      const again = await http
+        .put(`/performance/attendance/${ids.attendance}`)
+        .set(auth('prof'))
+        .send({ rating: 5 })
+        .expect(200);
+      expect(again.body.id).toBe(ids.performance);
+
+      const mine = await http.get('/notification/me').set(auth('ana'));
+      expect(mine.body.items.map((n: { type: string }) => n.type)).toContain(
+        'performance_recorded',
+      );
+    });
+
+    it('atividade do Strava do dia aparece vinculada à presença', async () => {
+      const start = new Date();
+      start.setHours(20, 5, 0, 0);
+      await app
+        .get(DataSource)
+        .getRepository(Strava)
+        .save({
+          user: { id: ids.ana },
+          stravaId: '987654321',
+          name: 'Treino de vôlei',
+          distance: 3000,
+          movingTime: 1500,
+          elapsedTime: 1600,
+          totalElevationGain: 0,
+          type: 'Workout',
+          averageHeartrate: 142,
+          startDate: start,
+        });
+
+      const res = await http
+        .get(`/attendance/training/${ids.training}?date=${todayISO}`)
+        .set(auth('prof'))
+        .expect(200);
+      const attendee = res.body[0].attendees[0];
+      expect(attendee.activity).toMatchObject({
+        stravaId: '987654321',
+        averageHeartrate: 142,
+        pace: 500,
+      });
+      expect(attendee.performance).toMatchObject({ rating: 5 });
+    });
+
+    it('evolução do atleta traz as sessões com Strava e desempenho', async () => {
+      const res = await http
+        .get(`/analytics/athlete/${ids.ana}`)
+        .set(auth('ana'))
+        .expect(200);
+      expect(res.body.sessions).toHaveLength(1);
+      expect(res.body.sessions[0]).toMatchObject({
+        date: todayISO,
+        activity: { stravaId: '987654321' },
+        performance: { rating: 5 },
+      });
+      expect(res.body.ratingByWeek[0]).toMatchObject({ average: 5, count: 1 });
+    });
+
+    it('atleta lista o próprio desempenho', async () => {
+      const res = await http
+        .get('/performance/me')
+        .set(auth('ana'))
+        .expect(200);
+      expect(res.body).toEqual([
+        expect.objectContaining({ date: todayISO, rating: 5 }),
+      ]);
     });
   });
 
