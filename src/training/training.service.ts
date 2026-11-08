@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -13,6 +14,12 @@ import { UserService } from 'src/user/user.service';
 import { CurrentUserPayload } from 'src/auth/decorators/current-user.decorator';
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { NotificationService } from 'src/notification/notification.service';
+import {
+  describeConflicts,
+  findTrainingConflicts,
+  normalizeKey,
+  TrainingSlot,
+} from './training-conflicts';
 
 export interface TrainingFilters {
   modality?: string;
@@ -23,7 +30,25 @@ export interface TrainingFilters {
 }
 
 // Campos cuja alteração afeta a agenda do atleta e por isso gera notificação.
-const SCHEDULE_FIELDS = ['hour', 'address', 'weekdays', 'active'] as const;
+const SCHEDULE_FIELDS = [
+  'hour',
+  'durationMinutes',
+  'address',
+  'weekdays',
+  'active',
+] as const;
+
+// Campos que, alterados, exigem checar de novo os conflitos de agenda.
+const CONFLICT_FIELDS = [
+  'modality',
+  'level',
+  'campus',
+  'address',
+  'weekdays',
+  'hour',
+  'durationMinutes',
+  'active',
+] as const;
 
 @Injectable()
 export class TrainingService {
@@ -44,6 +69,46 @@ export class TrainingService {
       );
     }
     return professor;
+  }
+
+  /** Modalidades já cadastradas (uma grafia por modalidade), em ordem alfabética. */
+  async modalities(): Promise<string[]> {
+    const rows = await this.trainingRepo
+      .createQueryBuilder('t')
+      .select('t.modality', 'modality')
+      .addSelect('COUNT(*)', 'total')
+      .groupBy('t.modality')
+      .getRawMany<{ modality: string; total: string }>();
+    const byKey = new Map<string, { modality: string; total: number }>();
+    for (const r of rows) {
+      const key = normalizeKey(r.modality);
+      const current = byKey.get(key);
+      if (!current || Number(r.total) > current.total) {
+        byKey.set(key, { modality: r.modality, total: Number(r.total) });
+      }
+    }
+    return [...byKey.values()]
+      .map((v) => v.modality)
+      .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  }
+
+  /** Adota a grafia já cadastrada ("judo" → "Judô") para não duplicar modalidades. */
+  private async canonicalModality(modality: string) {
+    const key = normalizeKey(modality);
+    const existing = (await this.modalities()).find(
+      (m) => normalizeKey(m) === key,
+    );
+    return existing ?? modality.trim().replace(/\s+/g, ' ');
+  }
+
+  /** 409 se o treino repetir uma turma ou chocar local/professor com outro treino ativo. */
+  private async assertNoConflicts(candidate: TrainingSlot) {
+    if (candidate.active === false) return;
+    const others = await this.trainingRepo.find({ where: { active: true } });
+    const conflicts = findTrainingConflicts(candidate, others);
+    if (conflicts.length > 0) {
+      throw new ConflictException(describeConflicts(conflicts));
+    }
   }
 
   private assertCanManage(training: Training, currentUser: CurrentUserPayload) {
@@ -78,6 +143,13 @@ export class TrainingService {
       }
       professor = await this.resolveProfessor(professorId);
     }
+
+    rest.modality = await this.canonicalModality(rest.modality);
+    await this.assertNoConflicts({
+      ...rest,
+      professor,
+      active: rest.active ?? true,
+    });
 
     const training = await this.trainingRepo.save(
       this.trainingRepo.create({ ...rest, professor }),
@@ -128,6 +200,20 @@ export class TrainingService {
         );
       }
       training.professor = await this.resolveProfessor(professorId);
+    }
+
+    if (rest.modality !== undefined) {
+      rest.modality = await this.canonicalModality(rest.modality);
+    }
+    const needsCheck =
+      professorId !== undefined ||
+      CONFLICT_FIELDS.some(
+        (f) =>
+          rest[f] !== undefined &&
+          JSON.stringify(rest[f]) !== JSON.stringify(training[f]),
+      );
+    if (needsCheck) {
+      await this.assertNoConflicts({ ...training, ...rest });
     }
 
     const scheduleChanged = SCHEDULE_FIELDS.some(

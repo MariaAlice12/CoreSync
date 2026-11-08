@@ -27,6 +27,10 @@ export class Training {
   @Column({ type: 'simple-array' })
   weekdays: string[];
 
+  // Duração em minutos, usada para detectar choque de local/professor.
+  @Column({ type: 'int', default: 90 })
+  durationMinutes: number;
+
   @Column({ nullable: true })
   description: string;
 

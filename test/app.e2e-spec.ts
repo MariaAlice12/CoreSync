@@ -477,6 +477,106 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
     });
   });
 
+  describe('Travas de agenda dos treinos', () => {
+    // Treino existente do prof: Vôlei avançado, hoje, 20:00–21:30, Ginásio.
+    beforeAll(() =>
+      signUp('prof2', {
+        name: 'Prof Dois',
+        email: 'prof2@x.com',
+        password: 'secret1',
+        userType: 'professor',
+        telephone: '9',
+      }),
+    );
+
+    const slot = (over: Record<string, unknown>) => ({
+      modality: 'Vôlei',
+      level: 'avancado',
+      hour: '20:00',
+      address: 'Ginásio',
+      weekdays: [todayName],
+      maxStudents: 10,
+      minStudents: 1,
+      ...over,
+    });
+
+    it('recusa turma repetida (mesma modalidade com outra grafia)', async () => {
+      const res = await http
+        .post('/training')
+        .set(auth('prof'))
+        .send(slot({ modality: 'volei', address: 'Outro Ginásio' }))
+        .expect(409);
+      expect(res.body.message[0]).toContain('Já existe uma turma de Vôlei');
+    });
+
+    it('recusa local ocupado por outro professor', async () => {
+      const res = await http
+        .post('/training')
+        .set(auth('admin'))
+        .send(
+          slot({
+            modality: 'Basquete',
+            hour: '20:30',
+            address: 'ginasio',
+            professorId: ids.prof2,
+          }),
+        )
+        .expect(409);
+      expect(res.body.message[0]).toContain(
+        'O local Ginásio já está ocupado por Vôlei',
+      );
+    });
+
+    it('recusa professor ocupado em outro local', async () => {
+      const res = await http
+        .post('/training')
+        .set(auth('prof'))
+        .send(slot({ modality: 'Natação', hour: '21:00', address: 'Piscina' }))
+        .expect(409);
+      expect(res.body.message).toEqual([
+        expect.stringContaining('Prof já dá Vôlei em Ginásio'),
+      ]);
+    });
+
+    it('aceita a mesma modalidade em outro nível logo após o término e adota a grafia cadastrada', async () => {
+      const res = await http
+        .post('/training')
+        .set(auth('prof'))
+        .send(slot({ modality: 'volei', level: 'iniciante', hour: '21:30' }))
+        .expect(201);
+      expect(res.body.modality).toBe('Vôlei');
+      expect(res.body.durationMinutes).toBe(90);
+      ids.training2 = res.body.id;
+    });
+
+    it('recusa edição que cria conflito', () =>
+      http
+        .patch(`/training/${ids.training2}`)
+        .set(auth('prof'))
+        .send({ hour: '20:00' })
+        .expect(409));
+
+    it('edição sem mudar a agenda continua permitida', () =>
+      http
+        .patch(`/training/${ids.training2}`)
+        .set(auth('prof'))
+        .send({ description: 'Turma nova' })
+        .expect(200));
+
+    it('valida o formato do horário', () =>
+      http
+        .post('/training')
+        .set(auth('prof'))
+        .send(slot({ modality: 'Judô', hour: '7h' }))
+        .expect(400));
+
+    it('lista as modalidades com uma grafia cada', async () => {
+      const res = await http.get('/training/modalities').expect(200);
+      expect(res.body).toEqual(expect.arrayContaining(['Vôlei', 'Futsal']));
+      expect(res.body).not.toContain('volei');
+    });
+  });
+
   describe('Eventos e repositório de fotos', () => {
     it('aluno não cria evento', () =>
       http

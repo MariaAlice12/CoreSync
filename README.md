@@ -232,6 +232,7 @@ Copie `.env.example` para `.env` e preencha os valores:
 |---|---|---|---|
 | `POST` | `/training` | Criar treino (professor ou admin) | 🔒 |
 | `GET` | `/training?modality=&level=&professorId=&campus=&active=` | Listar treinos com filtros | — |
+| `GET` | `/training/modalities` | Modalidades já cadastradas (uma grafia por modalidade) | — |
 | `GET` | `/training/:id` | Buscar treino por ID | — |
 | `PATCH` | `/training/:id` | Atualizar (professor responsável ou admin) | 🔒 |
 | `DELETE` | `/training/:id` | Remover (professor responsável ou admin) | 🔒 |
@@ -240,6 +241,7 @@ Copie `.env.example` para `.env` e preencha os valores:
 {
   "modality": "Vôlei",
   "hour": "19:00",
+  "durationMinutes": 90,
   "address": "Ginásio da FC",
   "weekdays": ["segunda", "quarta"],
   "level": "intermediario",
@@ -252,7 +254,14 @@ Copie `.env.example` para `.env` e preencha os valores:
 ```
 
 > `level`: `iniciante` | `intermediario` | `avancado`. `professorId` é obrigatório quando quem cria é admin.
-> Criar um treino notifica todos os atletas; alterar horário, local, dias ou status notifica os matriculados.
+> Criar um treino notifica todos os atletas; alterar horário, duração, local, dias ou status notifica os matriculados.
+
+**Travas de agenda (409 Conflict)**, na criação e na edição de treinos ativos:
+- **Turma repetida:** mesma modalidade, nível e campus, no mesmo dia e horário de início.
+- **Local ocupado:** mesmo local e campus com horário sobreposto (`hour` + `durationMinutes`, padrão 90 min).
+- **Professor ocupado:** o mesmo professor com outro treino em horário sobreposto.
+
+Modalidade, local e campus são comparados ignorando acentos, maiúsculas e espaços, e uma modalidade nova adota a grafia já cadastrada (`judo` → `Judô`). Terminar às 19:30 e começar às 19:30 não é conflito. A resposta traz em `message` uma frase por conflito.
 
 ---
 
@@ -432,7 +441,8 @@ Cada atleta conecta a **própria** conta Strava via OAuth.
 |---|---|---|
 | `id` | `number` | PK auto-incremental |
 | `modality` | `string` | Modalidade esportiva |
-| `hour` | `string` | Horário do treino |
+| `hour` | `string` | Horário de início (`HH:mm`) |
+| `durationMinutes` | `number` | Duração em minutos (padrão 90) |
 | `address` | `string` | Local do treino |
 | `weekdays` | `string[]` | Dias da semana |
 | `description` | `string?` | Descrição opcional |

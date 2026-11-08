@@ -230,6 +230,13 @@ const PROFESSORS = [
 ] as const;
 
 type Gender = 'f' | 'm' | 'x';
+// Duração por modalidade (minutos); a agenda do seed respeita as travas de conflito.
+function durationOf(t: { modality: string }) {
+  if (t.modality === 'Natação' || t.modality === 'Corrida') return 60;
+  if (t.modality === 'Xadrez') return 120;
+  return 90;
+}
+
 interface TrainingSeed {
   modality: string;
   level: 'iniciante' | 'intermediario' | 'avancado';
@@ -310,7 +317,7 @@ const TRAININGS: TrainingSeed[] = [
   {
     modality: 'Basquete',
     level: 'intermediario',
-    hour: '19:00',
+    hour: '19:30',
     weekdays: ['terca', 'sexta'],
     address: 'Ginásio da FC',
     max: 15,
@@ -336,7 +343,7 @@ const TRAININGS: TrainingSeed[] = [
     level: 'intermediario',
     hour: '18:00',
     weekdays: ['quarta', 'sexta'],
-    address: 'Quadra Poliesportiva',
+    address: 'Ginásio da FC',
     max: 16,
     min: 10,
     prof: 1,
@@ -727,6 +734,7 @@ async function seed(m: EntityManager) {
       modality: t.modality,
       level: t.level,
       hour: t.hour,
+      durationMinutes: durationOf(t),
       weekdays: t.weekdays,
       address: t.address,
       description: t.description,

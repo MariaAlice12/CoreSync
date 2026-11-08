@@ -40,6 +40,11 @@ export class TrainingController {
   @ApiOperation({ summary: 'Criar novo treino' })
   @ApiBody({ type: CreateTrainingDto })
   @ApiResponse({ status: 201, description: 'Treino criado com sucesso' })
+  @ApiResponse({
+    status: 409,
+    description:
+      'Turma repetida, local ocupado ou professor ocupado no horário',
+  })
   create(
     @Body() createTrainingDto: CreateTrainingDto,
     @CurrentUser() user: CurrentUserPayload,
@@ -77,6 +82,14 @@ export class TrainingController {
     });
   }
 
+  @Get('modalities')
+  @ApiOperation({
+    summary: 'Modalidades já cadastradas (uma grafia por modalidade)',
+  })
+  modalities() {
+    return this.trainingService.modalities();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Buscar um treino por ID' })
   @ApiParam({ name: 'id', type: Number, description: 'ID do treino' })
@@ -93,6 +106,11 @@ export class TrainingController {
   @ApiParam({ name: 'id', type: Number, description: 'ID do treino' })
   @ApiBody({ type: UpdateTrainingDto })
   @ApiResponse({ status: 200, description: 'Treino atualizado com sucesso' })
+  @ApiResponse({
+    status: 409,
+    description:
+      'Turma repetida, local ocupado ou professor ocupado no horário',
+  })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTrainingDto: UpdateTrainingDto,
