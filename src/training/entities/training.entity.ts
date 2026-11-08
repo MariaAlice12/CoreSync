@@ -1,5 +1,6 @@
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { User } from 'src/user/entities/user.entity';
+import type { NivelTreino } from 'src/common/niveis';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -62,9 +63,6 @@ export class Training {
   updatedAt: Date;
 }
 
-export const NIVEIS_TREINO = [
-  'iniciante',
-  'intermediario',
-  'avancado',
-] as const;
-export type NivelTreino = (typeof NIVEIS_TREINO)[number];
+// Os níveis vivem em src/common/niveis; reexportados aqui por compatibilidade.
+export { NIVEIS_TREINO } from 'src/common/niveis';
+export type { NivelTreino } from 'src/common/niveis';
