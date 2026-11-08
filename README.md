@@ -18,7 +18,7 @@
 
 ## Sobre o Projeto / About
 
-**PT:** O CoreSync é o backend de um Trabalho de Conclusão de Curso (TCC — Bacharelado em Sistemas de Informação, UNESP Bauru). A API centraliza a gestão das atividades esportivas de uma atlética (ou de qualquer organização esportiva): cadastro de administradores, professores e atletas (com curso, turno e campus), treinos por nível de maturidade, matrículas, **marcação de presença**, eventos com local, organizadores e **repositório de fotos em nuvem**, **notificações em tempo real** (WebSocket), **integração OAuth com o Strava** por atleta (distância, tempo, ritmo e frequência cardíaca) e **BI segmentado** por modalidade, curso, turno, nível e campus.
+**PT:** O CoreSync é o backend de um Trabalho de Conclusão de Curso (TCC — Bacharelado em Sistemas de Informação, UNESP Bauru). A API centraliza a gestão das atividades esportivas de uma atlética (ou de qualquer organização esportiva): cadastro de administradores, professores e atletas (com curso, turno e campus), treinos por nível de maturidade, matrículas, **marcação de presença**, eventos com local, organizadores e **repositório de fotos em nuvem**, **notificações em tempo real** (WebSocket, com fallback por e-mail), **registro de desempenho por sessão** pelo professor, **integração OAuth com o Strava** por atleta (distância, tempo, ritmo e frequência cardíaca, vinculados automaticamente às presenças) e **BI segmentado** por modalidade, curso, turno, nível e campus.
 
 O frontend React fica no repositório [CoreSyncWeb](https://github.com/MariaAlice12/CoreSyncWeb).
 
@@ -41,6 +41,8 @@ O frontend React fica no repositório [CoreSyncWeb](https://github.com/MariaAlic
 | Socket.IO (`@nestjs/websockets`) | ^10 | Notificações em tempo real |
 | AWS SDK S3 | ^3 | Repositório de fotos dos eventos |
 | `@nestjs/throttler` | ^6 | Limite de tentativas de login |
+| Nodemailer | ^10 | Fallback das notificações por e-mail (SMTP) |
+| Helmet | ^8 | Cabeçalhos HTTP de segurança |
 
 ---
 
@@ -52,7 +54,8 @@ O frontend React fica no repositório [CoreSyncWeb](https://github.com/MariaAlic
 | User | `/user` | Usuários (aluno / professor / admin) com curso, turno e campus |
 | Training | `/training` | Treinos (modalidade, nível, horário, local, campus) |
 | Enrollment | `/enrollment` | Matrículas (usuário + treino), com controle de vagas |
-| Attendance | `/attendance` | Marcação de presença por sessão de treino |
+| Attendance | `/attendance` | Marcação de presença por sessão de treino (com a atividade do Strava do dia) |
+| Performance | `/performance` | Registro de desempenho do atleta por sessão (nota, observações, métricas) |
 | Event | `/event` | Eventos esportivos + repositório de fotos |
 | Event Registration | `/event-registration` | Inscrições (participantes) em eventos |
 | Tournament Bracket | `/tournament-bracket` | Chaves de torneio |
@@ -152,6 +155,9 @@ Copie `.env.example` para `.env` e preencha os valores:
 | `AWS_REGION` / `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | — | Credenciais AWS |
 | `AWS_S3_PUBLIC_URL` | `https://<bucket>.s3.<region>.amazonaws.com` | URL pública/CDN do bucket |
 | `UPLOAD_DIR` | `./uploads` | Pasta das fotos quando o S3 não está configurado |
+| `TZ` | — | Fuso do servidor (recomendado `America/Sao_Paulo`): define a data local usada para casar atividades do Strava com as sessões |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | — / `587` / `false` | Servidor SMTP. **Sem `SMTP_HOST`, o e-mail fica desligado** |
+| `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` | — | Credenciais e remetente dos e-mails |
 
 > Para múltiplas origens no CORS, separe por vírgula: `http://localhost:5173,http://localhost:5174`
 
@@ -258,6 +264,28 @@ Copie `.env.example` para `.env` e preencha os valores:
 | `DELETE` | `/attendance/:id` | Cancelar presença | 🔒 |
 
 > Regras: o atleta precisa estar matriculado, a data não pode ser passada e precisa cair em um dos dias do treino; presença duplicada retorna 409.
+> Cada confirmado em `/attendance/training/:id` traz `activity` (atividade do Strava iniciada no mesmo dia, a mais próxima do horário do treino: distância, tempo, ritmo e FC) e `performance` (registro do professor), ou `null`.
+
+---
+
+### Desempenho / Performance
+
+| Método | Rota | Descrição | Auth |
+|---|---|---|---|
+| `PUT` | `/performance/attendance/:attendanceId` | Registrar ou atualizar o desempenho do atleta na sessão (professor do treino ou admin; só sessões de hoje ou passadas) — notifica o atleta | 🔒 |
+| `GET` | `/performance/me` | Desempenho registrado do usuário logado | 🔒 |
+| `GET` | `/performance/training/:id?from=` | Registros de um treino | 🔒 professor/admin |
+| `DELETE` | `/performance/:id` | Remover registro | 🔒 professor/admin |
+
+```json
+{
+  "rating": 4,
+  "notes": "Boa evolução na recepção",
+  "metrics": [{ "name": "Saques certos", "value": 12, "unit": "un" }]
+}
+```
+
+> `rating` de 1 a 5; até 10 métricas livres. Serve para modalidades sem GPS (vôlei, futsal...), complementando o Strava.
 
 ---
 
@@ -333,6 +361,8 @@ const socket = io('http://localhost:8080/notifications', { auth: { token } })
 socket.on('notification', (n) => console.log(n.title, n.message))
 ```
 
+**Fallback por e-mail:** notificações críticas (treino com horário, local, dias ou status alterado; evento com data ou local alterado) também são enviadas por e-mail quando `SMTP_HOST` está configurado. O envio não bloqueia a requisição e falhas apenas geram log.
+
 ---
 
 ### Strava
@@ -359,7 +389,7 @@ Cada atleta conecta a **própria** conta Strava via OAuth.
 | `GET` | `/analytics/professor-performance?professorId=` | Desempenho dos treinos de um professor | 🔒 admin/professor |
 | `GET` | `/analytics/segmentation?modality=&level=&course=&shift=&campus=` | Matrículas e presenças (30 dias) por modalidade, nível, curso, turno e campus | 🔒 admin |
 | `GET` | `/analytics/attendance/:trainingId?weeks=8` | Taxa de presença por sessão | 🔒 admin/professor |
-| `GET` | `/analytics/athlete/:id` | Evolução do atleta: presenças por semana + métricas do Strava | 🔒 |
+| `GET` | `/analytics/athlete/:id` | Evolução do atleta: presenças e nota média por semana, sessões (Strava + desempenho) e métricas do Strava | 🔒 |
 
 ---
 
@@ -432,13 +462,24 @@ Cada atleta conecta a **própria** conta Strava via OAuth.
 | `training` | `Training` | Treino |
 | `date` | `string` | Dia da sessão (`YYYY-MM-DD`), único por atleta + treino |
 
+### PerformanceRecord
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | `number` | PK auto-incremental |
+| `attendance` | `Attendance` | Presença (sessão) avaliada — único |
+| `rating` | `number?` | Nota de 1 a 5 |
+| `notes` | `string?` | Observações do professor |
+| `metrics` | `{ name, value, unit? }[]` | Métricas livres (JSON) |
+| `recordedBy` | `User?` | Quem registrou |
+
 ### Notification
 
 | Campo | Tipo | Descrição |
 |---|---|---|
 | `id` | `number` | PK auto-incremental |
 | `user` | `User` | Destinatário |
-| `type` | `string` | `training_created` \| `training_updated` \| `event_created` \| `event_updated` \| `event_photo` |
+| `type` | `string` | `training_created` \| `training_updated` \| `event_created` \| `event_updated` \| `event_photo` \| `performance_recorded` |
 | `title` / `message` | `string` | Conteúdo |
 | `link` | `string?` | Rota do frontend relacionada |
 | `read` | `boolean` | Lida |
