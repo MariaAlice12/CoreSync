@@ -2,9 +2,29 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
+import type { NextFunction, Request, Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Cabeçalhos de segurança (XSS, clickjacking, sniffing de MIME...).
+  // As fotos em /uploads são carregadas pelo front em outra origem; a UI do
+  // Swagger (/api) usa scripts inline, então fica sem CSP.
+  const secureHeaders = helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  });
+  const swaggerHeaders = helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false,
+  });
+  app.use((req: Request, res: Response, next: NextFunction) =>
+    (req.path.startsWith('/api') ? swaggerHeaders : secureHeaders)(
+      req,
+      res,
+      next,
+    ),
+  );
 
   app.enableCors({
     origin: process.env.FRONTEND_URL

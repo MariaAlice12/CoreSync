@@ -149,6 +149,7 @@ export class TrainingService {
             ? `Agora: ${saved.weekdays.join(', ')} às ${saved.hour} — ${saved.address}`
             : 'O treino foi desativado.',
           link: '/agenda',
+          critical: true,
         },
       );
     }

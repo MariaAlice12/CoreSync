@@ -150,6 +150,7 @@ export class EventService {
           title: `Evento alterado: ${saved.title}`,
           message: `Agora: ${this.describe(saved)}`,
           link: `/evento/${saved.id}`,
+          critical: true,
         },
       );
     }
