@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
-  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -12,7 +11,6 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { NIVEIS_TREINO, NivelTreino } from '../entities/training.entity';
 
 export class CreateTrainingDto {
   @ApiProperty({ type: String })
@@ -58,15 +56,6 @@ export class CreateTrainingDto {
   @IsBoolean()
   @IsOptional()
   active?: boolean;
-
-  @ApiProperty({
-    enum: NIVEIS_TREINO,
-    default: 'iniciante',
-    description: 'Grau de maturidade do atleta no esporte',
-  })
-  @IsOptional()
-  @IsIn(NIVEIS_TREINO)
-  level?: NivelTreino;
 
   @ApiProperty({
     type: String,

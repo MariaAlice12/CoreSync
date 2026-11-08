@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TrainingService } from './training.service';
-import { NIVEIS_TREINO } from './entities/training.entity';
 import { CreateTrainingDto } from './dto/create-training.dto';
 import { UpdateTrainingDto } from './dto/update-training.dto';
 import {
@@ -55,10 +54,9 @@ export class TrainingController {
   @Get()
   @ApiOperation({
     summary:
-      'Listar treinos (filtros por modalidade, nível, professor, campus e status)',
+      'Listar treinos (filtros por modalidade, professor, campus e status)',
   })
   @ApiQuery({ name: 'modality', required: false })
-  @ApiQuery({ name: 'level', required: false, enum: NIVEIS_TREINO })
   @ApiQuery({ name: 'professorId', required: false, type: Number })
   @ApiQuery({ name: 'campus', required: false })
   @ApiQuery({ name: 'active', required: false, type: Boolean })
@@ -68,14 +66,12 @@ export class TrainingController {
   })
   findAll(
     @Query('modality') modality?: string,
-    @Query('level') level?: string,
     @Query('professorId') professorId?: string,
     @Query('campus') campus?: string,
     @Query('active') active?: string,
   ) {
     return this.trainingService.findAll({
       modality,
-      level,
       campus,
       professorId: professorId ? Number(professorId) : undefined,
       active: active === undefined ? undefined : active === 'true',

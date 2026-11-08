@@ -1,4 +1,11 @@
-import { IsInt, IsBoolean, IsPositive, IsOptional } from 'class-validator';
+import {
+  IsInt,
+  IsBoolean,
+  IsPositive,
+  IsOptional,
+  IsIn,
+} from 'class-validator';
+import { NIVEIS_TREINO, NivelTreino } from 'src/common/niveis';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateEnrollmentDto {
@@ -22,4 +29,14 @@ export class CreateEnrollmentDto {
   @IsBoolean()
   @IsOptional()
   active?: boolean;
+
+  @ApiProperty({
+    enum: NIVEIS_TREINO,
+    required: false,
+    description:
+      'Autoavaliação do atleta no esporte (não restringe a turma; insight para o professor)',
+  })
+  @IsOptional()
+  @IsIn(NIVEIS_TREINO)
+  selfLevel?: NivelTreino;
 }

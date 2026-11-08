@@ -8,7 +8,6 @@ import {
 const base = (over: Partial<TrainingSlot> = {}): TrainingSlot => ({
   id: 1,
   modality: 'Futsal Feminino',
-  level: 'intermediario',
   campus: 'Bauru',
   address: 'Quadra Poliesportiva',
   weekdays: ['segunda', 'quarta'],
@@ -29,7 +28,7 @@ describe('normalizeKey', () => {
 describe('findTrainingConflicts', () => {
   const existing = base();
 
-  it('turma repetida: mesma modalidade (outra grafia), nível, campus, dia e hora', () => {
+  it('turma repetida: mesma modalidade (outra grafia), campus, dia e hora — nível não divide turmas', () => {
     const c = findTrainingConflicts(
       base({
         id: undefined,
@@ -44,12 +43,11 @@ describe('findTrainingConflicts', () => {
     expect(c[0].days).toEqual([3]);
   });
 
-  it('mesma modalidade em outro nível e horário é permitida', () => {
+  it('mesma modalidade em outro horário é permitida', () => {
     expect(
       findTrainingConflicts(
         base({
           id: undefined,
-          level: 'iniciante',
           hour: '07:00',
           professor: { id: 99 },
         }),

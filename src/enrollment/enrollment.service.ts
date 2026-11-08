@@ -81,12 +81,14 @@ export class EnrollmentService {
     // Matrícula cancelada é reativada em vez de duplicada.
     if (existing) {
       existing.active = true;
+      if (dto.selfLevel) existing.selfLevel = dto.selfLevel;
       return this.enrollmentRepo.save(existing);
     }
     const enrollment = this.enrollmentRepo.create({
       user,
       training,
       active: dto.active ?? true,
+      selfLevel: dto.selfLevel ?? null,
     });
     return this.enrollmentRepo.save(enrollment);
   }
@@ -132,7 +134,8 @@ export class EnrollmentService {
     if (dto.active && !enrollment.active) {
       await this.assertHasVacancy(enrollment.training);
     }
-    enrollment.active = dto.active;
+    if (dto.active !== undefined) enrollment.active = dto.active;
+    if (dto.selfLevel !== undefined) enrollment.selfLevel = dto.selfLevel;
     return this.enrollmentRepo.save(enrollment);
   }
 

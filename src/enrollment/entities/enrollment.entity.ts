@@ -2,6 +2,7 @@
 
 import { Training } from 'src/training/entities/training.entity';
 import { User } from 'src/user/entities/user.entity';
+import type { NivelTreino } from 'src/common/niveis';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -29,6 +30,10 @@ export class Enrollment {
 
   @Column({ default: true })
   active: boolean;
+
+  // Autoavaliação do atleta na matrícula — só informativo para o professor.
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  selfLevel: NivelTreino | null;
 
   @CreateDateColumn()
   createdAt: Date;

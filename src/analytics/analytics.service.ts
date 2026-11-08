@@ -204,9 +204,16 @@ export class AnalyticsService {
       this.userService.findAll({ userType: 'aluno' }),
     ]);
 
+    // Nível = autoavaliação do atleta na matrícula daquele treino.
+    const levelOf = new Map(
+      enrollments.map((e) => [`${e.user.id}:${e.training.id}`, e.selfLevel]),
+    );
+    const selfLevel = (training: Training, user: Enrollment['user']) =>
+      levelOf.get(`${user.id}:${training.id}`) ?? null;
+
     const matches = (training: Training, user: Enrollment['user']) =>
       (!filters.modality || training.modality === filters.modality) &&
-      (!filters.level || training.level === filters.level) &&
+      (!filters.level || selfLevel(training, user) === filters.level) &&
       (!filters.course || user.course === filters.course) &&
       (!filters.shift || user.shift === filters.shift) &&
       (!filters.campus || (user.campus ?? training.campus) === filters.campus);
@@ -224,7 +231,7 @@ export class AnalyticsService {
     ) => string | null | undefined;
     const dimensions: Record<string, Dimension> = {
       byModality: (t) => t.modality,
-      byLevel: (t) => t.level,
+      byLevel: (t, u) => selfLevel(t, u),
       byCourse: (_t, u) => u.course,
       byShift: (_t, u) => u.shift,
       byCampus: (t, u) => u.campus ?? t.campus,

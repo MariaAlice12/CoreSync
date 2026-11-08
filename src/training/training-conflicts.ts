@@ -6,7 +6,6 @@ export const DEFAULT_DURATION_MINUTES = 90;
 export interface TrainingSlot {
   id?: number;
   modality: string;
-  level?: string | null;
   campus?: string | null;
   address: string;
   weekdays: string[];
@@ -99,8 +98,7 @@ export function findTrainingConflicts(
     if (
       cStart === oStart &&
       sameCampus &&
-      normalizeKey(candidate.modality) === normalizeKey(other.modality) &&
-      (candidate.level ?? 'iniciante') === (other.level ?? 'iniciante')
+      normalizeKey(candidate.modality) === normalizeKey(other.modality)
     ) {
       conflicts.push({ type: 'duplicate', training: other, days: shared });
       continue; // a turma repetida já explica o choque de local/professor
@@ -136,7 +134,7 @@ export function describeConflicts(conflicts: TrainingConflict[]): string[] {
     const when = describeSlot(t, d);
     switch (type) {
       case 'duplicate':
-        return `Já existe uma turma de ${t.modality} (${t.level ?? 'iniciante'}) no mesmo horário: ${when}${prof}.`;
+        return `Já existe uma turma de ${t.modality} no mesmo horário: ${when}${prof}.`;
       case 'location':
         return `O local ${t.address} já está ocupado por ${t.modality}${prof}: ${when}.`;
       case 'professor':

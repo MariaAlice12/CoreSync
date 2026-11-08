@@ -15,6 +15,7 @@ import { dataSourceOptions } from '../data-source';
 import { User } from 'src/user/entities/user.entity';
 import { Training } from 'src/training/entities/training.entity';
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
+import type { NivelTreino } from 'src/common/niveis';
 import { Attendance } from 'src/attendance/entities/attendance.entity';
 import { PerformanceRecord } from 'src/performance/entities/performance-record.entity';
 import { Strava } from 'src/strava/entities/strava.entity';
@@ -239,7 +240,6 @@ function durationOf(t: { modality: string }) {
 
 interface TrainingSeed {
   modality: string;
-  level: 'iniciante' | 'intermediario' | 'avancado';
   hour: string;
   weekdays: string[];
   address: string;
@@ -256,7 +256,6 @@ interface TrainingSeed {
 const TRAININGS: TrainingSeed[] = [
   {
     modality: 'Vôlei Feminino',
-    level: 'avancado',
     hour: '19:30',
     weekdays: ['segunda', 'quarta'],
     address: 'Ginásio da FC',
@@ -268,7 +267,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Vôlei Feminino',
-    level: 'iniciante',
     hour: '18:00',
     weekdays: ['terca', 'quinta'],
     address: 'Ginásio da FC',
@@ -280,7 +278,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Vôlei Masculino',
-    level: 'intermediario',
     hour: '21:00',
     weekdays: ['segunda', 'quarta'],
     address: 'Ginásio da FC',
@@ -292,7 +289,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Futsal Masculino',
-    level: 'avancado',
     hour: '20:00',
     weekdays: ['terca', 'quinta'],
     address: 'Quadra Poliesportiva',
@@ -304,7 +300,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Futsal Feminino',
-    level: 'intermediario',
     hour: '18:30',
     weekdays: ['segunda', 'quarta'],
     address: 'Quadra Poliesportiva',
@@ -316,7 +311,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Basquete',
-    level: 'intermediario',
     hour: '19:30',
     weekdays: ['terca', 'sexta'],
     address: 'Ginásio da FC',
@@ -328,7 +322,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Basquete',
-    level: 'iniciante',
     hour: '12:30',
     weekdays: ['quarta'],
     address: 'Quadra Externa',
@@ -340,7 +333,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Handebol',
-    level: 'intermediario',
     hour: '18:00',
     weekdays: ['quarta', 'sexta'],
     address: 'Ginásio da FC',
@@ -352,7 +344,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Natação',
-    level: 'iniciante',
     hour: '07:00',
     weekdays: ['terca', 'quinta'],
     address: 'Piscina Semiolímpica',
@@ -365,7 +356,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Natação',
-    level: 'avancado',
     hour: '06:30',
     weekdays: ['segunda', 'quarta', 'sexta'],
     address: 'Piscina Semiolímpica',
@@ -378,7 +368,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Corrida',
-    level: 'iniciante',
     hour: '07:00',
     weekdays: ['sabado'],
     address: 'Pista de Atletismo',
@@ -391,7 +380,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Corrida',
-    level: 'intermediario',
     hour: '18:00',
     weekdays: ['terca', 'quinta'],
     address: 'Pista de Atletismo',
@@ -404,7 +392,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Atletismo',
-    level: 'avancado',
     hour: '17:00',
     weekdays: ['segunda', 'quarta'],
     address: 'Pista de Atletismo',
@@ -417,7 +404,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Judô',
-    level: 'iniciante',
     hour: '19:00',
     weekdays: ['segunda', 'quinta'],
     address: 'Sala de Lutas',
@@ -429,7 +415,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Xadrez',
-    level: 'intermediario',
     hour: '17:30',
     weekdays: ['sexta'],
     address: 'Biblioteca - Sala 2',
@@ -441,7 +426,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Vôlei de Praia',
-    level: 'iniciante',
     hour: '17:00',
     weekdays: ['sabado'],
     address: 'Quadra de Areia',
@@ -454,7 +438,6 @@ const TRAININGS: TrainingSeed[] = [
   },
   {
     modality: 'Tênis de Mesa',
-    level: 'iniciante',
     hour: '12:00',
     weekdays: ['terca'],
     address: 'Centro de Convivência',
@@ -732,7 +715,6 @@ async function seed(m: EntityManager) {
     Training,
     TRAININGS.map((t) => ({
       modality: t.modality,
-      level: t.level,
       hour: t.hour,
       durationMinutes: durationOf(t),
       weekdays: t.weekdays,
@@ -785,6 +767,13 @@ async function seed(m: EntityManager) {
         user: { id: mb.athlete.id },
         training: { id: t.id },
         active: mb.until === null,
+        // Autoavaliação feita pelo atleta na matrícula (alguns não informaram).
+        selfLevel: weighted<NivelTreino | null>([
+          ['iniciante', 45],
+          ['intermediario', 33],
+          ['avancado', 17],
+          [null, 5],
+        ]),
         date: mb.since,
         createdAt: mb.since,
         updatedAt: mb.until ?? mb.since,

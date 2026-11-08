@@ -1,6 +1,5 @@
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { User } from 'src/user/entities/user.entity';
-import type { NivelTreino } from 'src/common/niveis';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -38,9 +37,6 @@ export class Training {
   @Column({ default: true })
   active: boolean;
 
-  @Column({ type: 'varchar', length: 20, default: 'iniciante' })
-  level: NivelTreino;
-
   @Column({ type: 'varchar', nullable: true })
   campus: string | null;
 
@@ -62,7 +58,3 @@ export class Training {
   @UpdateDateColumn()
   updatedAt: Date;
 }
-
-// Os níveis vivem em src/common/niveis; reexportados aqui por compatibilidade.
-export { NIVEIS_TREINO } from 'src/common/niveis';
-export type { NivelTreino } from 'src/common/niveis';

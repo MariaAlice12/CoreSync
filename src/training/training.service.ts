@@ -23,7 +23,6 @@ import {
 
 export interface TrainingFilters {
   modality?: string;
-  level?: string;
   professorId?: number;
   campus?: string;
   active?: boolean;
@@ -41,7 +40,6 @@ const SCHEDULE_FIELDS = [
 // Campos que, alterados, exigem checar de novo os conflitos de agenda.
 const CONFLICT_FIELDS = [
   'modality',
-  'level',
   'campus',
   'address',
   'weekdays',
@@ -171,7 +169,6 @@ export class TrainingService {
   findAll(filters: TrainingFilters = {}) {
     const where: FindOptionsWhere<Training> = {};
     if (filters.modality) where.modality = filters.modality;
-    if (filters.level) where.level = filters.level as Training['level'];
     if (filters.campus) where.campus = filters.campus;
     if (filters.active !== undefined) where.active = filters.active;
     if (filters.professorId) where.professor = { id: filters.professorId };

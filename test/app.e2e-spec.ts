@@ -225,7 +225,7 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
         })
         .expect(403));
 
-    it('professor cria treino por nível e atletas são notificados via WebSocket', async () => {
+    it('professor cria treino (sem divisão por nível) e atletas são notificados via WebSocket', async () => {
       const res = await http
         .post('/training')
         .set(auth('prof'))
@@ -234,13 +234,12 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
           hour: '19:00',
           address: 'Ginásio',
           weekdays: [todayName],
-          level: 'avancado',
           maxStudents: 1,
           minStudents: 1,
         })
         .expect(201);
       ids.training = res.body.id;
-      expect(res.body.level).toBe('avancado');
+      expect(res.body.level).toBeUndefined();
 
       await new Promise((r) => setTimeout(r, 200));
       expect(received.map((n) => n.type)).toContain('training_created');
@@ -252,18 +251,25 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
       expect(mine.body.unread).toBe(1);
     });
 
-    it('filtra treinos por nível', async () => {
-      const res = await http.get('/training?level=iniciante').expect(200);
-      expect(res.body).toHaveLength(0);
-    });
+    it('recusa autoavaliação com nível inválido', () =>
+      http
+        .post('/enrollment')
+        .set(auth('ana'))
+        .send({ trainingId: ids.training, selfLevel: 'expert' })
+        .expect(400));
 
     it('matricula o aluno logado, recusa duplicata e respeita vagas', async () => {
       const res = await http
         .post('/enrollment')
         .set(auth('ana'))
-        .send({ trainingId: ids.training, userId: ids.bia })
+        .send({
+          trainingId: ids.training,
+          userId: ids.bia,
+          selfLevel: 'intermediario',
+        })
         .expect(201);
       expect(res.body.user.id).toBe(ids.ana); // userId do body é ignorado para aluno
+      expect(res.body.selfLevel).toBe('intermediario');
       ids.enrollment = res.body.id;
 
       await http
@@ -277,6 +283,23 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
         .send({ trainingId: ids.training })
         .expect(409); // lotado
     });
+
+    it('aluno atualiza a própria autoavaliação', async () => {
+      const res = await http
+        .patch(`/enrollment/${ids.enrollment}`)
+        .set(auth('ana'))
+        .send({ selfLevel: 'avancado' })
+        .expect(200);
+      expect(res.body.selfLevel).toBe('avancado');
+      expect(res.body.active).toBe(true);
+    });
+
+    it('aluno não altera a autoavaliação de outro', () =>
+      http
+        .patch(`/enrollment/${ids.enrollment}`)
+        .set(auth('bia'))
+        .send({ selfLevel: 'iniciante' })
+        .expect(403));
 
     it('aluno vê só as próprias matrículas', async () => {
       const res = await http.get('/enrollment').set(auth('bia')).expect(200);
@@ -491,7 +514,6 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
 
     const slot = (over: Record<string, unknown>) => ({
       modality: 'Vôlei',
-      level: 'avancado',
       hour: '20:00',
       address: 'Ginásio',
       weekdays: [todayName],
@@ -538,11 +560,11 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
       ]);
     });
 
-    it('aceita a mesma modalidade em outro nível logo após o término e adota a grafia cadastrada', async () => {
+    it('aceita a mesma modalidade logo após o término e adota a grafia cadastrada', async () => {
       const res = await http
         .post('/training')
         .set(auth('prof'))
-        .send(slot({ modality: 'volei', level: 'iniciante', hour: '21:30' }))
+        .send(slot({ modality: 'volei', hour: '21:30' }))
         .expect(201);
       expect(res.body.modality).toBe('Vôlei');
       expect(res.body.durationMinutes).toBe(90);
@@ -683,9 +705,11 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
           { key: 'noite', enrollments: 2, attendances: 1 },
         ]),
       );
+      // Nível vem da autoavaliação na matrícula; sem resposta = "Não informado".
       expect(res.body.byLevel).toEqual(
         expect.arrayContaining([
           { key: 'avancado', enrollments: 1, attendances: 1 },
+          { key: 'Não informado', enrollments: 1, attendances: 0 },
         ]),
       );
     });

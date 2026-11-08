@@ -1,4 +1,4 @@
-// Níveis de prática do atleta no esporte.
+// Níveis de autoavaliação do atleta no esporte (informados na matrícula).
 export const NIVEIS_TREINO = [
   'iniciante',
   'intermediario',
