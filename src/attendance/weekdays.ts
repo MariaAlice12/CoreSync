@@ -38,3 +38,19 @@ export function trainingHappensOn(weekdays: string[], date: string): boolean {
   const day = parseISODate(date).getDay();
   return weekdays.some((w) => weekdayIndex(w) === day);
 }
+
+/** Quantas sessões do treino caem entre `from` e `to` (YYYY-MM-DD, inclusive). */
+export function countSessions(
+  weekdays: string[],
+  from: string,
+  to: string,
+): number {
+  let count = 0;
+  const day = parseISODate(from);
+  const end = parseISODate(to);
+  while (day <= end) {
+    if (trainingHappensOn(weekdays, toISODate(day))) count++;
+    day.setDate(day.getDate() + 1);
+  }
+  return count;
+}

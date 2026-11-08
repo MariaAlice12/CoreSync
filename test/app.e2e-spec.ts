@@ -702,16 +702,53 @@ describe('CoreSync (e2e) — requisitos da especificação', () => {
         .expect(200);
       expect(res.body.byShift).toEqual(
         expect.arrayContaining([
-          { key: 'noite', enrollments: 2, attendances: 1 },
+          expect.objectContaining({
+            key: 'noite',
+            enrollments: 2,
+            attendances: 1,
+          }),
         ]),
       );
       // Nível vem da autoavaliação na matrícula; sem resposta = "Não informado".
       expect(res.body.byLevel).toEqual(
         expect.arrayContaining([
-          { key: 'avancado', enrollments: 1, attendances: 1 },
-          { key: 'Não informado', enrollments: 1, attendances: 0 },
+          expect.objectContaining({
+            key: 'avancado',
+            enrollments: 1,
+            attendances: 1,
+          }),
+          expect.objectContaining({
+            key: 'Não informado',
+            enrollments: 1,
+            attendances: 0,
+          }),
         ]),
       );
+    });
+
+    it('calcula frequência e atletas sem matrícula', async () => {
+      const res = await http
+        .get('/analytics/segmentation')
+        .set(auth('admin'))
+        .expect(200);
+      const { totals } = res.body;
+      expect(totals.notEnrolledAthletes).toBeGreaterThanOrEqual(0);
+      expect(totals.notEnrolledAthletes).toBeLessThanOrEqual(totals.athletes);
+      expect(totals.notEnrolledPct).toBe(
+        Math.round((totals.notEnrolledAthletes / totals.athletes) * 100),
+      );
+      expect(totals.presentSessions).toBeLessThanOrEqual(
+        totals.expectedSessions,
+      );
+      if (totals.expectedSessions > 0) {
+        expect(totals.frequencyPct).toBeGreaterThanOrEqual(0);
+        expect(totals.frequencyPct).toBeLessThanOrEqual(100);
+      }
+      for (const row of res.body.byModality) {
+        expect(row).toHaveProperty('frequencyPct');
+        expect(row).toHaveProperty('expectedSessions');
+        expect(row.presentSessions).toBeLessThanOrEqual(row.expectedSessions);
+      }
     });
 
     it('segmentação é restrita a admin', () =>

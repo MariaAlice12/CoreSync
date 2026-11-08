@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { Training } from 'src/training/entities/training.entity';
 import { Enrollment } from 'src/enrollment/entities/enrollment.entity';
 import { SurveyResponse } from 'src/survey/entities/survey-response.entity';
@@ -19,6 +19,7 @@ import {
   toSessionActivity,
 } from 'src/attendance/session-activity';
 import {
+  countSessions,
   parseISODate,
   toISODate,
   trainingHappensOn,
@@ -43,7 +44,16 @@ export interface SegmentRow {
   key: string;
   enrollments: number;
   attendances: number;
+  /** Presenças das matrículas ativas desde a data da matrícula (numerador da frequência). */
+  presentSessions: number;
+  /** Sessões previstas para as matrículas ativas na janela de 30 dias. */
+  expectedSessions: number;
+  /** Presenças dessas matrículas ÷ sessões previstas (null sem sessão prevista). */
+  frequencyPct: number | null;
 }
+
+const pct = (part: number, total: number) =>
+  total > 0 ? Math.round((part / total) * 100) : null;
 
 export interface SegmentationFilters {
   modality?: string;
@@ -188,17 +198,22 @@ export class AnalyticsService {
   }
 
   /**
-   * BI segmentado: matrículas ativas e presenças (últimos 30 dias) agrupadas
-   * por modalidade, nível, curso, turno e campus. Os filtros recortam a base
-   * antes do agrupamento, permitindo cruzar critérios (ex.: turno noite em vôlei).
+   * BI segmentado: matrículas ativas, presenças e frequência (últimos 30 dias)
+   * agrupadas por modalidade, nível, curso, turno e campus. Os filtros recortam
+   * a base antes do agrupamento, permitindo cruzar critérios (ex.: turno noite em vôlei).
+   *
+   * Frequência = presenças das matrículas ativas ÷ sessões previstas para elas
+   * na janela (contando só a partir da data da matrícula).
    */
   async segmentation(filters: SegmentationFilters = {}) {
-    const [enrollments, attendances, athletes] = await Promise.all([
+    const from = toISODate(daysAgo(29));
+    const today = toISODate(new Date());
+    const [enrollments, attendances, allAthletes] = await Promise.all([
       this.enrollmentRepo.find({
         where: { active: true, training: { active: true } },
       }),
       this.attendanceRepo.find({
-        where: { date: MoreThanOrEqual(toISODate(daysAgo(30))) },
+        where: { date: Between(from, today) },
         relations: { training: true },
       }),
       this.userService.findAll({ userType: 'aluno' }),
@@ -237,35 +252,94 @@ export class AnalyticsService {
       byCampus: (t, u) => u.campus ?? t.campus,
     };
 
+    // Frequência por matrícula: sessões previstas desde a matrícula (dentro da
+    // janela) e presenças registradas nesse período.
+    const attendedDates = new Map<string, string[]>();
+    for (const a of filteredAttendances) {
+      const key = `${a.user.id}:${a.training.id}`;
+      attendedDates.set(key, [...(attendedDates.get(key) ?? []), a.date]);
+    }
+    const frequency = new Map(
+      filteredEnrollments.map((e) => {
+        const enrolledOn = toISODate(new Date(e.createdAt));
+        const start = enrolledOn > from ? enrolledOn : from;
+        const expected = countSessions(e.training.weekdays, start, today);
+        const present = (
+          attendedDates.get(`${e.user.id}:${e.training.id}`) ?? []
+        ).filter((d) => d >= start).length;
+        return [e, { expected, present: Math.min(present, expected) }];
+      }),
+    );
+
     const result: Record<string, SegmentRow[]> = {};
     for (const [name, pick] of Object.entries(dimensions)) {
       const rows = new Map<string, SegmentRow>();
       const row = (key: string | null | undefined) => {
         const k = key || NOT_INFORMED;
         if (!rows.has(k))
-          rows.set(k, { key: k, enrollments: 0, attendances: 0 });
+          rows.set(k, {
+            key: k,
+            enrollments: 0,
+            attendances: 0,
+            presentSessions: 0,
+            expectedSessions: 0,
+            frequencyPct: null,
+          });
         return rows.get(k)!;
       };
-      filteredEnrollments.forEach(
-        (e) => row(pick(e.training, e.user)).enrollments++,
-      );
+      filteredEnrollments.forEach((e) => {
+        const r = row(pick(e.training, e.user));
+        const f = frequency.get(e)!;
+        r.enrollments++;
+        r.expectedSessions += f.expected;
+        r.presentSessions += f.present;
+      });
       filteredAttendances.forEach(
         (a) => row(pick(a.training, a.user)).attendances++,
       );
-      result[name] = [...rows.values()].sort(
-        (a, b) => b.enrollments - a.enrollments,
-      );
+      result[name] = [...rows.values()]
+        .map((r) => ({
+          ...r,
+          frequencyPct: pct(r.presentSessions, r.expectedSessions),
+        }))
+        .sort((a, b) => b.enrollments - a.enrollments);
     }
 
     const enrolledAthletes = new Set(filteredEnrollments.map((e) => e.user.id));
+    const expectedTotal = [...frequency.values()].reduce(
+      (s, f) => s + f.expected,
+      0,
+    );
+    const presentTotal = [...frequency.values()].reduce(
+      (s, f) => s + f.present,
+      0,
+    );
+
+    // "Sem matrícula" olha para o atleta, não para a turma: recorta só por
+    // curso, turno e campus e considera qualquer matrícula ativa em turma ativa.
+    const athletes = allAthletes.filter(
+      (u) =>
+        (!filters.course || u.course === filters.course) &&
+        (!filters.shift || u.shift === filters.shift) &&
+        (!filters.campus || u.campus === filters.campus),
+    );
+    const withAnyEnrollment = new Set(enrollments.map((e) => e.user.id));
+    const notEnrolledAthletes = athletes.filter(
+      (u) => !withAnyEnrollment.has(u.id),
+    ).length;
 
     return {
       filters,
       totals: {
         athletes: athletes.length,
         enrolledAthletes: enrolledAthletes.size,
+        notEnrolledAthletes,
+        notEnrolledPct: pct(notEnrolledAthletes, athletes.length),
         activeEnrollments: filteredEnrollments.length,
         attendancesLast30Days: filteredAttendances.length,
+        presentSessions: presentTotal,
+        expectedSessions: expectedTotal,
+        frequencyPct: pct(presentTotal, expectedTotal),
       },
       ...result,
     };
