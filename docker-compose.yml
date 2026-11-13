@@ -1,9 +1,14 @@
-# Fluxo de deploy do banco:
-#   1. db       -> sobe o MySQL e espera ficar saudável (healthcheck)
+# CoreSync completo: banco + API + front (nginx) + túnel público (Cloudflare).
+#
+#   1. db       -> MySQL; porta só em 127.0.0.1 (para o dev local)
 #   2. migrate  -> aplica as migrations pendentes e encerra
 #   3. api      -> só sobe se as migrations terminarem com sucesso
+#   4. web      -> nginx com o build do front (../CoreSyncWeb) e proxy /backend -> api
+#   5. tunnel   -> publica o web na internet com HTTPS (URL *.trycloudflare.com nos logs)
+#   seed        -> dados de exemplo, só sob demanda:
+#                  docker compose --profile demo run --rm seed
 #
-# Uso: docker compose up -d --build
+# Uso: ./scripts/start.sh   (ou: docker compose up -d --build)
 
 services:
   db:
@@ -11,10 +16,13 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-coresync}
+      MYSQL_USER: ${DB_USERNAME:-coresync}
       MYSQL_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no .env}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?defina DB_ROOT_PASSWORD no .env}
+      TZ: ${TZ:-America/Sao_Paulo}
+    # Só 127.0.0.1: a API em dev (npm run start:dev) acessa, a rede/internet não.
     ports:
-      - '${DB_EXPOSED_PORT:-3306}:3306'
+      - '127.0.0.1:${DB_EXPOSED_PORT:-3306}:3306'
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -26,6 +34,7 @@ services:
 
   migrate:
     build: .
+    image: coresync-api
     command: ['npm', 'run', 'migration:run:prod']
     environment: &db-env
       DB_HOST: db
@@ -34,20 +43,42 @@ services:
       DB_USERNAME: ${DB_USERNAME:-coresync}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_SYNCHRONIZE: 'false'
+      TZ: ${TZ:-America/Sao_Paulo}
     depends_on:
       db:
         condition: service_healthy
     restart: 'no'
 
+  seed:
+    build: .
+    image: coresync-api
+    profiles: ['demo']
+    command: ['node', 'dist/database/seeds/seed.js']
+    environment: *db-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: 'no'
+
   api:
     build: .
+    image: coresync-api
     restart: unless-stopped
     environment:
       <<: *db-env
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env}
       PORT: 8080
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
-      API_PUBLIC_URL: ${API_PUBLIC_URL:-http://localhost:8080}
+      # PUBLIC_URL = endereço fixo do site, se houver (ex.: https://coresync.seudominio.com.br).
+      # Vazio (quick tunnel): links das fotos ficam relativos e funcionam em qualquer URL.
+      # Front e API ficam na mesma origem (nginx), então CORS não entra em jogo.
+      FRONTEND_URL: ${PUBLIC_URL:-http://localhost:${WEB_PORT:-8000}}
+      API_PUBLIC_URL: ${PUBLIC_URL:-}/backend
+      # túnel -> nginx -> api
+      TRUST_PROXY: ${TRUST_PROXY:-2}
+      SWAGGER_ENABLED: ${SWAGGER_ENABLED:-true}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       STRAVA_CLIENT_ID: ${STRAVA_CLIENT_ID:-}
       STRAVA_CLIENT_SECRET: ${STRAVA_CLIENT_SECRET:-}
       STRAVA_REDIRECT_URI: ${STRAVA_REDIRECT_URI:-}
@@ -56,7 +87,6 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
       AWS_S3_PUBLIC_URL: ${AWS_S3_PUBLIC_URL:-}
-      TZ: ${TZ:-America/Sao_Paulo}
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_SECURE: ${SMTP_SECURE:-false}
@@ -65,11 +95,37 @@ services:
       SMTP_FROM: ${SMTP_FROM:-}
     volumes:
       - uploads:/app/uploads
-    ports:
-      - '${PORT:-8080}:8080'
+    # Sem "ports": só o nginx (web) acessa a API, pela rede interna.
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/ >/dev/null || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
     depends_on:
       migrate:
         condition: service_completed_successfully
+
+  web:
+    build:
+      context: ${WEB_DIR:-../CoreSyncWeb}
+      args:
+        VITE_API_URL: /backend
+    image: coresync-web
+    restart: unless-stopped
+    # Só na própria máquina (teste local); de fora, o acesso é pelo túnel.
+    ports:
+      - '127.0.0.1:${WEB_PORT:-8000}:80'
+    depends_on:
+      api:
+        condition: service_healthy
+
+  tunnel:
+    image: cloudflare/cloudflared:2024.12.2
+    restart: unless-stopped
+    command: ['tunnel', '--no-autoupdate', '--url', 'http://web:80']
+    depends_on:
+      - web
 
 volumes:
   db_data:
