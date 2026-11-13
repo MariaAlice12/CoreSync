@@ -2,7 +2,9 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
+  OnApplicationBootstrap,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,11 +22,39 @@ export interface UserFilters {
 }
 
 @Injectable()
-export class UserService {
+export class UserService implements OnApplicationBootstrap {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectRepository(User)
     private userRepo: Repository<User>,
   ) {}
+
+  // Banco novo não tem como ganhar o primeiro admin pela API (só admin cria
+  // admin). Com ADMIN_EMAIL/ADMIN_PASSWORD no ambiente, cria um se não houver
+  // nenhum. Idempotente: com um admin existente, não faz nada.
+  async onApplicationBootstrap() {
+    const email = process.env.ADMIN_EMAIL?.trim();
+    const password = process.env.ADMIN_PASSWORD;
+    if (!email || !password) return;
+    if (await this.userRepo.exists({ where: { userType: 'admin' } })) return;
+    if (await this.findByEmail(email)) {
+      this.logger.warn(
+        `ADMIN_EMAIL ${email} já pertence a um usuário que não é admin; admin inicial não criado`,
+      );
+      return;
+    }
+    await this.userRepo.save(
+      this.userRepo.create({
+        name: process.env.ADMIN_NAME || 'Administrador',
+        email,
+        password: await bcrypt.hash(password, 10),
+        userType: 'admin',
+        telephone: '',
+      }),
+    );
+    this.logger.log(`Admin inicial criado: ${email}`);
+  }
 
   async create(dto: CreateUserDto, currentUser?: CurrentUserPayload) {
     // Cadastro público só cria aluno/professor; admins são criados por outro admin.
