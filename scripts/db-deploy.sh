@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Deploy do banco com Docker Compose: backup -> migrations -> API.
+# Atualização com Docker Compose: backup -> migrations -> API -> site.
+# (O túnel continua no ar, então o link público não muda.)
 # Uso: ./scripts/db-deploy.sh
 set -euo pipefail
 
@@ -9,7 +10,7 @@ if [ ! -f .env ]; then
   echo "Arquivo .env não encontrado. Copie o .env.example e preencha." >&2
   exit 1
 fi
-set -a; . ./.env; set +a
+DB_DATABASE=$(grep -E '^DB_DATABASE=' .env | tail -1 | cut -d= -f2- || true)
 
 echo "==> Build das imagens"
 docker compose build
@@ -38,7 +39,8 @@ if ! docker compose run --rm migrate; then
   exit 1
 fi
 
-echo "==> Subindo a API"
+echo "==> Subindo a API e o site"
 docker compose up -d --no-deps api
+docker compose up -d --no-deps web
 
 docker compose ps
