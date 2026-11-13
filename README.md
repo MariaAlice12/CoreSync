@@ -102,6 +102,47 @@ npm run start:dev
 
 ---
 
+## Publicar a partir do meu PC / Self-hosting
+
+O sistema inteiro (banco + API + site) roda **neste computador** com Docker e fica acessível **de qualquer lugar pela internet** por um link HTTPS do [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/). Não é preciso abrir portas no roteador, e o IP de casa não fica exposto.
+
+```
+navegador ──https──> Cloudflare ──túnel──> tunnel ──> web (nginx) ──/backend──> api ──> db
+                                                       └── site (build do CoreSyncWeb)
+```
+
+**Pré-requisitos:** Docker com Compose v2 e os dois repositórios lado a lado:
+
+```
+Projetos/
+├── CoreSync/      <- este repositório
+└── CoreSyncWeb/   <- o front (o script clona se não existir)
+```
+
+```bash
+./scripts/start.sh          # sobe tudo e imprime o link público + login do admin
+./scripts/start.sh --demo   # idem, carregando os dados de exemplo (seed)
+```
+
+O script cria o `.env` com senhas aleatórias quando ele não existe, troca um `JWT_SECRET` de exemplo e define o primeiro admin (`ADMIN_EMAIL` / `ADMIN_PASSWORD`). Esse admin é criado na subida da API **apenas se o banco ainda não tiver nenhum admin**.
+
+| Ação | Comando |
+|---|---|
+| Ver o link público | `docker compose logs tunnel \| grep trycloudflare` |
+| Abrir nesta máquina | `http://localhost:8000` (`WEB_PORT`) |
+| Parar / voltar | `docker compose stop` / `docker compose start` |
+| Atualizar depois de um `git pull` | `./scripts/db-deploy.sh` (backup → migrations → API → site; o link não muda) |
+| Apagar tudo, inclusive o banco | `docker compose down -v` |
+
+O que saber antes de publicar:
+- **O link muda** sempre que o container `tunnel` reinicia (reboot, `docker compose restart tunnel`). Para ter um endereço fixo, crie um *named tunnel* na Cloudflare com um domínio próprio, troque o `command` do serviço `tunnel` por `tunnel run --token ${TUNNEL_TOKEN}` e defina `PUBLIC_URL=https://seu-dominio` no `.env`.
+- **O PC precisa ficar ligado** e sem suspender. Os containers usam `restart: unless-stopped` e voltam sozinhos quando o Docker sobe.
+- O **Strava** depende de uma URL fixa, porque o callback fica registrado no app do Strava. Com o link aleatório, a integração não funciona.
+- O banco e a API **não ficam expostos**: o MySQL escuta só em `127.0.0.1` (para o dev local) e a API só é acessível pelo nginx. Com `SWAGGER_ENABLED=false`, a documentação `/backend/api` também sai do ar.
+- Um volume `db_data` criado antes de `MYSQL_USER` existir no compose tem só o usuário `root`. Nesse caso, mantenha `DB_USERNAME=root` com `DB_PASSWORD` igual a `DB_ROOT_PASSWORD`, ou recrie o volume.
+
+---
+
 ## Deploy do banco com Docker Compose / Database deploy
 
 O schema é versionado com **migrations do TypeORM** (`src/database/migrations`). O `docker-compose.yml` sobe tudo em ordem:
@@ -159,6 +200,13 @@ Copie `.env.example` para `.env` e preencha os valores:
 | `DB_USERNAME` | `root` | Usuário do MySQL |
 | `DB_PASSWORD` | `root` | Senha do MySQL |
 | `DB_ROOT_PASSWORD` | — | Senha do root do MySQL (apenas docker compose) |
+| `DB_EXPOSED_PORT` | `3306` | Porta do MySQL do compose no host (só `127.0.0.1`) |
+| `ADMIN_NAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` | — | Primeiro admin, criado na subida se não houver nenhum |
+| `PUBLIC_URL` | — | Endereço fixo do site publicado (compose). Vazio = links relativos, para o quick tunnel |
+| `WEB_PORT` | `8000` | Porta local do site no compose (`127.0.0.1`) |
+| `WEB_DIR` | `../CoreSyncWeb` | Pasta do repositório do front, usada no build do compose |
+| `TRUST_PROXY` | `2` no compose | Nº de proxies na frente da API (túnel → nginx), para o rate limit do login enxergar o IP real |
+| `SWAGGER_ENABLED` | `true` | `false` desliga a documentação Swagger |
 | `DB_SYNCHRONIZE` | `false` | `true` recria o schema a partir das entidades (só em dev) |
 | `JWT_SECRET` | — | Chave secreta para assinar os tokens JWT |
 | `PORT` | `8080` | Porta em que o servidor sobe |
